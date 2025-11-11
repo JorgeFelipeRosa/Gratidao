@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gratidão Gestão</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="container-login">
+        
+        <form id="formLogin" class="form-auth">
+            <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-login">
+            <p>Por favor, entre com suas credenciais.</p>
+            <div>
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div>
+                <label for="login-password">Senha:</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit">Entrar</button>
+            <p id="auth-mensagem"></p>
+            <a href="#" id="link-toggle-signup">Não tem uma conta? Cadastre-se</a>
+        </form>
+
+        <form id="formSignup" class="form-auth hidden">
+             <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-login">
+            <p>Crie uma conta para acessar o sistema.</p>
+            <div>
+                <label for="signup-email">Email:</label>
+                <input type="email" id="signup-email" required>
+            </div>
+            <div>
+                <label for="signup-password">Senha (mínimo 6 caracteres):</label>
+                <input type="password" id="signup-password" required minlength="6">
+            </div>
+            <button type="submit">Cadastrar</button>
+            <p id="auth-mensagem-signup"></p>
+            <a href="#" id="link-toggle-login">Já tem uma conta? Faça o login</a>
+        </form>
+
+    </div>
+
+    <div id="container-app">
+        <nav class="navegacao" id="menu-lateral">
+            <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-menu">
+            
+            <ul>
+                <li data-target="tela-home">🏠 Home</li>
+                <li data-target="tela-cadastro-cliente">👤 Cadastrar Cliente</li>
+                <li data-target="tela-consulta-clientes">🔍 Consultar Clientes</li>
+                <li data-target="tela-cadastro-produto">📦 Cadastrar Produto</li>
+                <li data-target="tela-consulta-produtos">🔍 Consultar Produtos</li>
+                <li data-target="tela-cadastro-orcamento">📝 Novo Orçamento</li>
+                <li data-target="tela-consulta-orcamentos">🔍 Consultar Orçamentos</li>
+                <li data-target="tela-cadastro-pedido">🛒 Novo Pedido</li>
+                <li data-target="tela-consulta-pedidos">🔍 Consultar Pedidos</li>
+                <li data-target="tela-registro-consumo">🏭 Registrar Consumo</li>
+                <li data-target="tela-cadastro-mercadoria">🏭 Cad. Matéria-Prima</li>
+                <li data-target="tela-consulta-mercadoria">🔍 Cons. Matéria-Prima</li>
+                <li data-target="tela-gerenciar-listas">⚙️ Gerenciar Listas</li>
+            </ul>
+            <ul class="nav-bottom">
+                 <li id="btn-logout">🚪 Sair</li>
+            </ul>
+        </nav>
+
+        <div class="mobile-header">
+            <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-mobile">
+            <button id="btn-hamburger">☰</button>
+        </div>
+
+        <main class="conteudo-principal">
+            
+            <section id="tela-home" class="tela ativa">
+                <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-home">
+                <p style="text-align: center; margin-top: 20px;">Selecione uma opção no menu ao lado para começar.</p>
+            </section>
+
+            <section id="tela-cadastro-cliente" class="tela">
+                <form id="formCliente">
+                    <h2>Cadastro de Cliente</h2>
+                    
+                    <div><label for="nome">Nome:</label><input type="text" id="nome" name="nome" required></div>
+                    <div><label for="cpf">CPF:</label><input type="text" id="cpf" name="cpf" required></div>
+                    <div><label for="telefone">Telefone:</label><input type="text" id="telefone" name="telefone"></div>
+                    
+                    <div><label for="cep">CEP:</label><input type="text" id="cep" name="cep"></div>
+                    <div><label for="rua">Rua:</label><input type="text" id="rua" name="rua"></div>
+                    <div><label for="bairro">Bairro:</label><input type="text" id="bairro" name="bairro"></div>
+                    <div><label for="cidade">Cidade:</label><input type="text" id="cidade" name="cidade"></div>
+                    
+                    <div><label for="tipoCliente">Tipo de Cliente:</label><select id="tipoCliente" name="id_tipo_cliente" required><option value="">Carregando...</option></select></div>
+                    <div><label for="canalVenda">Canal de Venda:</label><select id="canalVenda" name="id_canal_venda" required><option value="">Carregando...</option></select></div>
+                    
+                    <button type="submit" id="btnSalvarCliente">Salvar Cliente</button>
+                    <div id="mensagem"></div>
+                </form>
+            </section>
+
+            <section id="tela-consulta-clientes" class="tela">
+                <h2>Consultar Clientes</h2>
+                <div class="tabela-responsiva">
+                    <table id="tabelaClientes">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>CPF</th>
+                                <th>Telefone</th>
+                                <th>Tipo</th>
+                                <th>Canal</th>
+                                <th>CEP</th> 
+                                <th>Rua</th> 
+                                <th>Bairro</th> 
+                                <th>Cidade</th> 
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaClientes">
+                            <tr><td colspan="10">Carregando clientes...</td></tr> 
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="tela-cadastro-produto" class="tela">
+                <form id="formProduto">
+                    <h2>Cadastrar Novo Produto</h2>
+                    <div><label for="nome_produto">Nome do Produto:</label><input type="text" id="nome_produto" name="nome_produto" required></div>
+                    <div><label for="preco_medio">Preço Médio:</label><input type="number" id="preco_medio" name="preco_medio" step="0.01" required></div>
+                    <div><label for="id_categoria_produto">Categoria:</label><select id="id_categoria_produto" name="id_categoria_produto" required><option value="">Carregando...</option></select></div>
+                    <div><label for="id_linha_produto">Linha:</label><select id="id_linha_produto" name="id_linha_produto" required><option value="">Carregando...</option></select></div>
+                    <div><label for="id_comodo">Cômodo:</label><select id="id_comodo" name="id_comodo" required><option value="">Carregando...</option></select></div>
+                    <div><label for="id_co">Opção "Co":</label><select id="id_co" name="id_co" required><option value="">Carregando...</option></select></div>
+                    <button type="submit" id="btnSalvarProduto">Salvar Produto</button>
+                    <div id="mensagemProduto"></div>
+                </form>
+            </section>
+            
+            <section id="tela-consulta-produtos" class="tela">
+                <h2>Consultar Produtos</h2>
+                <div class="tabela-responsiva">
+                    <table id="tabelaProdutos">
+                        <thead><tr><th>Nome do Produto</th><th>Preço Médio</th><th>Categoria</th><th>Ações</th></tr></thead>
+                        <tbody id="corpoTabelaProdutos"><tr><td colspan="4">Carregando produtos...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="tela-cadastro-orcamento" class="tela">
+                <h2>Novo Orçamento</h2>
+                <form id="formOrcamento">
+                    <fieldset class="form-grupo">
+                        <legend>Dados Principais</legend>
+                        <div><label for="select-cliente-orcamento">Cliente:</label><select id="select-cliente-orcamento" required><option value="">Carregando clientes...</option></select></div>
+                        <div><label for="data-validade-orcamento">Data de Validade:</label><input type="date" id="data-validade-orcamento" required></div>
+                        <div><label for="obs-orcamento">Observações (Capa):</label><textarea id="obs-orcamento" rows="3"></textarea></div>
+                    </fieldset>
+                    <fieldset class="form-grupo">
+                        <legend>Adicionar Itens ao Orçamento</legend>
+                        <div class="item-adder-form">
+                            <div><label for="select-produto-orcamento">Produto:</label><select id="select-produto-orcamento"><option value="">Carregando produtos...</option></select></div>
+                            <div><label for="qtd-item-orcamento">Quantidade:</label><input type="number" id="qtd-item-orcamento" value="1" step="any"></div>
+                            <div><label for="preco-item-orcamento">Preço Negociado (Unit.):</label><input type="number" id="preco-item-orcamento" step="0.01"></div>
+                            <div><label for="medida-item-orcamento">Medida:</label><input type="text" id="medida-item-orcamento" placeholder="Ex: 1.20 x 0.80"></div>
+                            <button type="button" id="btn-add-item-orcamento">Adicionar Item +</button>
+                        </div>
+                    </fieldset>
+                    <h3>Itens do Orçamento</h3>
+                    <table id="tabelaItensOrcamento">
+                        <thead><tr><th>Produto</th><th>Qtd.</th><th>Preço Unit.</th><th>Medida</th><th>Ação</th></tr></thead>
+                        <tbody id="corpoTabelaItensOrcamento"></tbody>
+                    </table>
+                    <h3 id="total-orcamento">Total: R$ 0.00</h3>
+                    <hr>
+                    <button type="submit" id="btnSalvarOrcamento">Salvar Orçamento Completo</button>
+                    <div id="mensagemOrcamento"></div>
+                </form>
+            </section>
+            
+            <section id="tela-consulta-orcamentos" class="tela">
+                <h2>Consultar Orçamentos</h2>
+                <div class="tabela-responsiva">
+                    <table id="tabelaOrcamentos">
+                        <thead><tr><th>ID</th><th>Data Criação</th><th>Cliente</th><th>Data Validade</th><th>Valor Total</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="corpoTabelaOrcamentos"><tr><td colspan="7">Carregando orçamentos...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="tela-cadastro-pedido" class="tela">
+                <h2>Novo Pedido a partir de Orçamento</h2>
+                <form id="formPedido">
+                    <fieldset class="form-grupo">
+                        <legend>1. Selecionar Orçamento Aprovado</legend>
+                        <div>
+                            <label for="select-orcamento-aprovado">Orçamentos Aprovados:</label>
+                            <select id="select-orcamento-aprovado" required>
+                                <option value="">Carregando orçamentos...</option>
+                            </select>
+                        </div>
+                        <button type="button" id="btn-carregar-orcamento">Carregar Dados do Orçamento</button>
+                    </fieldset>
+                    <fieldset class="form-grupo">
+                        <legend>2. Dados do Pedido</legend>
+                        <div><strong>Cliente:</strong> <span id="pedido-cliente-nome">---</span></div>
+                        <div><strong>Valor Total:</strong> <span id="pedido-valor-total">R$ 0.00</span></div>
+                        <hr>
+                        <div><label for="pedido-prazo-entrega">Prazo de Entrega:</label><input type="date" id="pedido-prazo-entrega" required></div>
+                        <div><label for="pedido-data-vencimento">Data Vencimento (Pgto.):</label><input type="date" id="pedido-data-vencimento" required></div>
+                        <div><label for="pedido-status-pedido">Status do Pedido:</label><select id="pedido-status-pedido" required><option value="">Carregando status...</option></select></div>
+                        <div><label for="pedido-observacoes">Observações:</label><textarea id="pedido-observacoes" rows="2"></textarea></div>
+                    </fieldset>
+                    <fieldset class="form-grupo">
+                        <legend>3. Registrar Pagamento de Entrada (Opcional)</legend>
+                        <div class="item-adder-form" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <div><label for="pedido-valor-entrada">Valor da Entrada:</label><input type="number" id="pedido-valor-entrada" step="0.01" placeholder="Ex: 500.00"></div>
+                            <div><label for="pedido-forma-pagamento">Forma de Pagamento:</label><select id="pedido-forma-pagamento"><option value="">Carregando formas...</option></select></div>
+                            <div><label for="pedido-data-pagamento">Data do Pagamento:</label><input type="date" id="pedido-data-pagamento"></div>
+                        </div>
+                    </fieldset>
+                    <hr>
+                    <button type="submit" id="btnSalvarPedido">Salvar Pedido Completo</button>
+                    <div id="mensagemPedido"></div>
+                </form>
+            </section>
+
+            <section id="tela-consulta-pedidos" class="tela">
+                <h2>Consultar Pedidos (Gestão Financeira)</h2>
+                <div class="tabela-responsiva">
+                    <table id="tabelaPedidos">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Data</th>
+                                <th>Cliente</th>
+                                <th>Valor Total</th>
+                                <th>Total Pago</th>
+                                <th>Saldo Pendente</th>
+                                <th>Status Pedido</th>
+                                <th>Status Pgto.</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaPedidos">
+                            <tr><td colspan="9">Carregando pedidos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="tela-registro-consumo" class="tela">
+                <h2>Registrar Consumo de Material (Produção)</h2>
+                <form id="formConsumo">
+                    <fieldset class="form-grupo">
+                        <legend>1. Item a ser Produzido</legend>
+                        <div>
+                            <label for="consumo-select-item-pedido">Item do Pedido:</label>
+                            <select id="consumo-select-item-pedido" name="item_pedido_data" required>
+                                <option value="">Carregando itens de pedidos...</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                    <fieldset class="form-grupo">
+                        <legend>2. Material Utilizado</legend>
+                        <div>
+                            <label for="consumo-select-mercadoria">Matéria-Prima:</label>
+                            <select id="consumo-select-mercadoria" name="id_mercadoria_usada" required>
+                                <option value="">Carregando matérias-primas...</option>
+                            </select>
+                        </div>
+                        <div class="item-adder-form" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <div>
+                                <label for="consumo-qtd">Quantidade Usada:</label>
+                                <input type="number" id="consumo-qtd" name="quantidade_usada" step="any" required>
+                            </div>
+                            <div>
+                                <label for="consumo-custo">Custo no Momento:</label>
+                                <input type="number" id="consumo-custo" name="valor_custo_momento" step="0.01" required>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="form-grupo">
+                        <legend>3. Detalhes</legend>
+                        <div>
+                            <label for="consumo-observacoes">Observações:</label>
+                            <textarea id="consumo-observacoes" name="observacoes" rows="3"></textarea>
+                        </div>
+                    </fieldset>
+                    <button type="submit" id="btnSalvarConsumo">Salvar Consumo</button>
+                    <div id="mensagemConsumo"></div>
+                </form>
+            </section>
+
+            <section id="tela-cadastro-mercadoria" class="tela">
+                <h2>Cadastrar Matéria-Prima (Mercadoria)</h2>
+                <form id="formMercadoria">
+                    <div><label for="mercadoria-nome">Nome do Material:</label><input type="text" id="mercadoria-nome" name="nome_material" required></div>
+                    <div><label for="mercadoria-custo">Valor de Custo (Unitário):</label><input type="number" id="mercadoria-custo" name="valor_custo" step="0.01" required></div>
+                    <div><label for="id_categoria_mercadoria">Categoria:</label><select id="mercadoria-categoria" name="id_categoria_mercadoria" required><option value="">Carregando...</option></select></div>
+                    <div><label for="mercadoria-unidade">Unidade de Medida:</label><select id="mercadoria-unidade" name="id_unidade_medida" required><option value="">Carregando...</option></select></div>
+                    <div><label for="mercadoria-cor">Cor:</label><select id="mercadoria-cor" name="id_cor_mercadoria" required><option value="">Carregando...</option></select></div>
+                    <div><label for="mercadoria-fornecedor">Fornecedor:</label><select id="mercadoria-fornecedor" name="id_fornecedor" required><option value="">Carregando...</option></select></div>
+                    <button type="submit" id="btnSalvarMercadoria">Salvar Matéria-Prima</button>
+                    <div id="mensagemMercadoria"></div>
+                </form>
+            </section>
+            
+            <section id="tela-consulta-mercadoria" class="tela">
+                <h2>Consultar Matéria-Prima (Estoque)</h2>
+                <div class="tabela-responsiva">
+                    <table id="tabelaMercadorias">
+                        <thead><tr><th>ID</th><th>Material</th><th>Custo</th><th>Unid.</th><th>Fornecedor</th><th>Ações</th></tr></thead>
+                        <tbody id="corpoTabelaMercadorias"><tr><td colspan="6">Carregando matérias-primas...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="tela-gerenciar-listas" class="tela">
+                <h2>Gerenciador de Listas de Opções</h2>
+                <fieldset class="form-grupo">
+                    <legend>1. Selecionar Lista</legend>
+                    <div>
+                        <label for="select-lista-gerenciar">Qual lista você deseja gerenciar?</label>
+                        <select id="select-lista-gerenciar">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </fieldset>
+                <div id="gerenciador-container" class="hidden">
+                    <fieldset class="form-grupo">
+                        <legend>2. Adicionar Novo Item</legend>
+                        <form id="form-add-lista-item" class="item-adder-form" style="grid-template-columns: 2fr 1fr;">
+                            <div>
+                                <label for="add-item-nome">Nome do Novo Item:</label>
+                                <input type="text" id="add-item-nome" required>
+                            </div>
+                            <div id="add-item-extra-wrapper" class="hidden"> 
+                                <label for="add-item-extra">Descrição/Valor Extra:</label>
+                                <input type="text" id="add-item-extra">
+                            </div>
+                            <button type="submit">Adicionar +</button>
+                        </form>
+                        <div id="mensagemGerenciarListas"></div>
+                    </fieldset>
+                    <fieldset class="form-grupo">
+                        <legend>3. Itens Atuais</legend>
+                        <table id="tabela-itens-lista">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th id="th-extra">Extra</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpo-tabela-itens-lista"></tbody>
+                        </table>
+                    </fieldset>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <script src="js/main.js" type="module"></script>
+    
+    <div id="modal-fundo" class="modal-fundo hidden">
+        <div id="modal-editar-produto" class="modal">
+            <h2>Editar Produto</h2>
+            <form id="formEditarProduto">
+                <input type="hidden" id="edit-produto-id" name="id">
+                <div><label for="edit-nome_produto">Nome do Produto:</label><input type="text" id="edit-nome_produto" name="nome_produto" required></div>
+                <div><label for="edit-preco_medio">Preço Médio:</label><input type="number" id="edit-preco_medio" name="preco_medio" step="0.01" required></div>
+                <div><label for="edit-id_categoria_produto">Categoria:</label><select id="edit-id_categoria_produto" name="id_categoria_produto" required><option value="">Carregando...</option></select></div>
+                <div class="modal-botoes">
+                    <button type="button" id="btn-cancelar-edicao">Cancelar</button>
+                    <button type="submit" id="btn-salvar-edicao">Salvar Alterações</button>
+                </div>
+                <div id="mensagemEditarProduto"></div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="modal-fundo-cliente" class="modal-fundo hidden">
+        <div id="modal-editar-cliente" class="modal">
+            <h2>Editar Cliente</h2>
+            <form id="formEditarCliente">
+                <input type="hidden" id="edit-cliente-id" name="id">
+                
+                <div><label for="edit-nome">Nome:</label><input type="text" id="edit-nome" name="nome" required></div>
+                <div><label for="edit-cpf">CPF:</label><input type="text" id="edit-cpf" name="cpf" required></div>
+                <div><label for="edit-telefone">Telefone:</label><input type="text" id="edit-telefone" name="telefone"></div>
+                
+                <div><label for="edit-cep">CEP:</label><input type="text" id="edit-cep" name="cep"></div>
+                <div><label for="edit-rua">Rua:</label><input type="text" id="edit-rua" name="rua"></div>
+                <div><label for="edit-bairro">Bairro:</label><input type="text" id="edit-bairro" name="bairro"></div>
+                <div><label for="edit-cidade">Cidade:</label><input type="text" id="edit-cidade" name="cidade"></div>
+                
+                <div><label for="edit-id_tipo_cliente">Tipo de Cliente:</label><select id="edit-id_tipo_cliente" name="id_tipo_cliente" required><option value="">Carregando...</option></select></div>
+                <div><label for="edit-id_canal_venda">Canal de Venda:</label><select id="edit-id_canal_venda" name="id_canal_venda" required><option value="">Carregando...</option></select></div>
+                
+                <div class="modal-botoes">
+                    <button type="button" id="btn-cancelar-edicao-cliente">Cancelar</button>
+                    <button type="submit" id="btn-salvar-edicao-cliente">Salvar Alterações</button>
+                </div>
+                <div id="mensagemEditarCliente"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-fundo-visualizar" class="modal-fundo hidden">
+        <div id="modal-visualizar-orcamento" class="modal">
+            <h2>Detalhes do Orçamento <span id="detalhe-orcamento-id"></span></h2>
+            <div class="detalhes-grid">
+                <div><strong>Cliente:</strong> <span id="detalhe-cliente-nome">...</span></div>
+                <div><strong>Data Criação:</strong> <span id="detalhe-data-criacao">...</span></div>
+                <div><strong>Data Validade:</strong> <span id="detalhe-data-validade">...</span></div>
+            </div>
+            <hr>
+            <h3>Itens</h3>
+            <table id="tabelaDetalhesItens">
+                <thead><tr><th>Produto</th><th>Qtd.</th><th>Preço Unit.</th><th>Subtotal</th></tr></thead>
+                <tbody id="corpoTabelaDetalhesItens"></tbody>
+            </table>
+            <h3 id="detalhe-valor-total" style="text-align: right;">Total: R$ ...</h3>
+            <div class="modal-botoes">
+                <button type="button" id="btn-fechar-visualizar" class="btn-cancelar">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-fundo-pagamento" class="modal-fundo hidden">
+        <div id="modal-add-pagamento" class="modal">
+            <h2>Registrar Novo Pagamento</h2>
+            <p>Pedido ID: <strong id="pgto-pedido-id">...</strong></p>
+            <p>Saldo Pendente Atual: <strong id="pgto-saldo-pendente">R$ ...</strong></p>
+            <form id="formAddPagamento">
+                <input type="hidden" id="pgto-hidden-pedido-id">
+                <div><label for="pgto-valor-pago">Valor Pago:</label><input type="number" id="pgto-valor-pago" name="pgto-valor-pago" step="0.01" required></div>
+                <div><label for="pgto-data-pagamento">Data do Pagamento:</label><input type="date" id="pgto-data-pagamento" name="pgto-data-pagamento" required></div>
+                <div><label for="pgto-forma-pagamento">Forma de Pagamento:</label><select id="pgto-forma-pagamento" name="pgto-forma-pagamento" required><option value="">Carregando formas...</option></select></div>
+                <div><label for="pgto-observacoes">Observações:</label><textarea id="pgto-observacoes" name="pgto-observacoes" rows="2"></textarea></div>
+                <div class="modal-botoes">
+                    <button type="button" id="btn-cancelar-pagamento" class="btn-cancelar">Cancelar</button>
+                    <button type="submit" id="btn-salvar-pagamento">Salvar Pagamento</button>
+                </div>
+                <div id="mensagemAddPagamento"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-fundo-visualizar-pedido" class="modal-fundo hidden">
+        <div id="modal-visualizar-pedido" class="modal" style="max-width: 800px;">
+            <h2>Detalhes do Pedido <span id="detalhe-pedido-id"></span></h2>
+            <div class="detalhes-grid">
+                <div><strong>Cliente:</strong> <span id="detalhe-pedido-cliente">...</span></div>
+                <div><strong>Status Pedido:</strong> <span id="detalhe-pedido-status">...</span></div>
+                <div><strong>Valor Total:</strong> <span id="detalhe-pedido-valor">...</span></div>
+                <div><strong>Status Pagamento:</strong> <span id="detalhe-pedido-status-pgto">...</span></div>
+            </div>
+            <hr>
+            <div class="colunas-detalhe">
+                <div>
+                    <h3>Itens do Pedido</h3>
+                    <table id="tabelaDetalhesItensPedido">
+                        <thead><tr><th>Produto</th><th>Qtd.</th><th>Valor Unit.</th></tr></thead>
+                        <tbody id="corpoTabelaDetalhesItensPedido"></tbody>
+                    </table>
+                </div>
+                <div>
+                    <h3>Histórico de Pagamentos</h3>
+                    <table id="tabelaDetalhesPagamentos">
+                        <thead><tr><th>Data</th><th>Valor Pago</th><th>Forma</th></tr></thead>
+                        <tbody id="corpoTabelaDetalhesPagamentos"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-botoes" style="margin-top: 20px;">
+                <button type="button" id="btn-fechar-visualizar-pedido" class="btn-cancelar">Fechar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modal-fundo-mudar-status" class="modal-fundo hidden">
+        <div id="modal-mudar-status" class="modal" style="max-width: 400px;">
+            <h2>Mudar Status do Pedido #<span id="status-pedido-id">...</span></h2>
+            <form id="formMudarStatus">
+                <input type="hidden" id="status-hidden-pedido-id">
+                <div>
+                    <label for="select-mudar-status-pedido">Novo Status:</label>
+                    <select id="select-mudar-status-pedido" name="id_status_pedido" required>
+                        <option value="">Carregando status...</option>
+                    </select>
+                </div>
+                <div class="modal-botoes" style="margin-top: 20px;">
+                    <button type="button" id="btn-cancelar-mudar-status" class="btn-cancelar">Cancelar</button>
+                    <button type="submit" id="btn-salvar-mudar-status">Salvar Status</button>
+                </div>
+                <div id="mensagemMudarStatus"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-fundo-editar-mercadoria" class="modal-fundo hidden">
+        <div id="modal-editar-mercadoria" class="modal">
+            <h2>Editar Matéria-Prima</h2>
+            <form id="formEditarMercadoria">
+                <input type="hidden" id="edit-mercadoria-id" name="id">
+                <div><label for="edit-mercadoria-nome">Nome do Material:</label><input type="text" id="edit-mercadoria-nome" name="nome_material" required></div>
+                <div><label for="edit-mercadoria-custo">Valor de Custo (Unitário):</label><input type="number" id="edit-mercadoria-custo" name="valor_custo" step="0.01" required></div>
+                <div><label for="edit-mercadoria-categoria">Categoria:</label><select id="edit-mercadoria-categoria" name="id_categoria_mercadoria" required><option value="">Carregando...</option></select></div>
+                <div><label for="edit-mercadoria-unidade">Unidade de Medida:</label><select id="edit-mercadoria-unidade" name="id_unidade_medida" required><option value="">Carregando...</option></select></div>
+                <div><label for="edit-mercadoria-fornecedor">Fornecedor:</label><select id="edit-mercadoria-fornecedor" name="id_fornecedor" required><option value="">Carregando...</option></select></div>
+                <div class="modal-botoes">
+                    <button type="button" id="btn-cancelar-edicao-mercadoria">Cancelar</button>
+                    <button type="submit" id="btn-salvar-edicao-mercadoria">Salvar Alterações</button>
+                </div>
+                <div id="mensagemEditarMercadoria"></div>
+            </form>
+        </div>
+    </div>
+    
+</body>
+</html>

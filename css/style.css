@@ -1,0 +1,480 @@
+/* ======================================== */
+/* TEMA: "GRATIDÃO" (DARK MODE & GOLD)      */
+/* ======================================== */
+
+/* --- Variáveis de Cor --- */
+:root {
+    --cor-fundo-principal: #1a1d21;
+    --cor-fundo-menu: #111315;
+    --cor-fundo-widget: #2a2c30;
+    --cor-borda: #3a3d42;
+    --cor-acento-principal: #f0c400;
+    --cor-texto-principal: #e0e0e0;
+    --cor-texto-secundario: #9a9a9a;
+}
+
+/* --- GERAL --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background: var(--cor-fundo-principal);
+    color: var(--cor-texto-principal);
+}
+.hidden {
+    display: none !important;
+}
+
+/* --- ESTILOS DE LOGIN --- */
+#container-login {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background: var(--cor-fundo-menu);
+}
+.form-auth {
+    background: var(--cor-fundo-widget);
+    border: 1px solid var(--cor-borda);
+    padding: 30px;
+    border-radius: 8px;
+    width: 320px;
+}
+/* NOVO: Estilo da logo no login */
+.logo-login {
+    width: 60%;
+    display: block;
+    margin: 0 auto 20px auto;
+}
+.form-auth h2 { /* Trocado para p */
+    text-align: center;
+    margin-top: 0;
+    color: var(--cor-texto-principal);
+}
+.form-auth p {
+    color: var(--cor-texto-secundario);
+    text-align: center;
+}
+.form-auth a {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: var(--cor-acento-principal);
+    cursor: pointer;
+}
+.form-auth #auth-mensagem, .form-auth #auth-mensagem-signup {
+    color: #e74c3c;
+    text-align: center;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+/* --- CONTAINER DO APP --- */
+#container-app {
+    display: none;
+}
+
+/* --- NAVEGAÇÃO (MENU LATERAL) --- */
+.navegacao {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background: var(--cor-fundo-menu);
+    color: var(--cor-texto-secundario);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid var(--cor-borda);
+    z-index: 1001;
+}
+/* NOVO: Estilo da logo no menu */
+.logo-menu {
+    width: 90%;
+    display: block;
+    margin: -10px auto 15px auto; /* Ajuste de margem */
+}
+.navegacao ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.navegacao li {
+    padding: 15px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--cor-borda);
+}
+.navegacao li:hover {
+    background: var(--cor-fundo-widget);
+    color: var(--cor-acento-principal);
+}
+.nav-bottom {
+    border-top: 1px solid var(--cor-borda);
+}
+#btn-logout {
+    color: #e74c3c;
+}
+#btn-logout:hover {
+    background: #c0392b;
+    color: white;
+}
+
+/* --- CABEÇALHO MOBILE (NOVO!) --- */
+.mobile-header {
+    display: none;
+    background: var(--cor-fundo-widget);
+    color: var(--cor-acento-principal);
+    padding: 10px 15px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--cor-borda);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+/* NOVO: Estilo da logo no header mobile */
+.logo-mobile {
+    height: 40px; /* Altura fixa */
+    width: auto;
+}
+#btn-hamburger {
+    background: none;
+    border: none;
+    color: var(--cor-acento-principal);
+    font-size: 24px;
+    cursor: pointer;
+    width: auto;
+    padding: 5px;
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
+.conteudo-principal {
+    margin-left: 220px;
+    padding: 30px;
+}
+.tela {
+    display: none;
+    background: var(--cor-fundo-widget);
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+}
+.tela.ativa {
+    display: block;
+}
+.tela h2 {
+    color: var(--cor-acento-principal);
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+.tela h3 {
+    color: var(--cor-texto-principal);
+}
+/* NOVO: Estilo da logo na home */
+.logo-home {
+    max-width: 450px;
+    width: 90%;
+    display: block;
+    margin: 20px auto 0 auto;
+    border-radius: 8px; /* Opcional: suaviza as bordas */
+}
+
+
+/* --- ESTILOS DE FORMULÁRIO --- */
+form { 
+    max-width: 600px; 
+}
+form div { 
+    margin-bottom: 15px; 
+}
+label { 
+    display: block; 
+    margin-bottom: 5px; 
+    font-weight: bold; 
+    color: var(--cor-texto-secundario);
+    font-size: 0.9em;
+}
+input, select, textarea { 
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid var(--cor-borda); 
+    background-color: var(--cor-fundo-principal);
+    color: var(--cor-texto-principal);
+    border-radius: 4px; 
+    box-sizing: border-box;
+}
+select option {
+    background: var(--cor-fundo-principal);
+    color: var(--cor-texto-principal);
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* --- BOTÕES --- */
+button, .btn { 
+    background: var(--cor-acento-principal);
+    color: #111;
+    padding: 12px 20px; 
+    border: none; 
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: bold;
+    border-radius: 4px; 
+    width: 100%;
+}
+button:hover, .btn:hover {
+    background: #d4ac0d;
+}
+#btn-add-item-orcamento {
+    background: #007bff;
+    color: white;
+}
+#btn-add-item-orcamento:hover {
+    background: #0056b3;
+}
+/* Mensagens de sucesso/erro */
+#mensagem, #mensagemProduto, #mensagemMercadoria, #mensagemOrcamento, #mensagemPedido, #mensagemConsumo, #mensagemGerenciarListas, #mensagemMudarStatus, #mensagemEditarCliente, #mensagemEditarProduto, #mensagemEditarMercadoria, #mensagemAddPagamento { 
+    margin-top: 15px; 
+    font-weight: bold; 
+    text-align: center; 
+}
+
+/* --- ESTILOS DA TABELA DE CONSULTA --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    padding: 12px;
+    border: 1px solid var(--cor-borda);
+    text-align: left;
+}
+th {
+    background-color: #333;
+    color: var(--cor-acento-principal);
+}
+/* Botões de Ação na Tabela */
+.btn-editar, .btn-mudar-status-pedido, .btn-editar-cliente, .btn-editar-mercadoria {
+    background: #ffc107;
+    color: #333;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+    font-size: 0.9em;
+    margin: 2px;
+}
+.btn-excluir, .btn-excluir-item-temp, .btn-inativar-lista-item, .btn-excluir-cliente, .btn-excluir-orcamento, .btn-excluir-mercadoria {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+    font-size: 0.9em;
+    margin: 2px;
+}
+.btn-visualizar-orcamento, .btn-visualizar-pedido {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+    font-size: 0.9em;
+    margin: 2px;
+}
+.btn-aprovar-orcamento {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+    font-size: 0.9em;
+    margin: 2px;
+}
+.btn-add-pagamento {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+    font-size: 0.9em;
+    margin: 2px;
+}
+
+/* --- ESTILOS DO MODAL (Pop-up) --- */
+.modal-fundo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+}
+.modal {
+    background: var(--cor-fundo-widget);
+    border: 1px solid var(--cor-borda);
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+}
+.modal h2 {
+    margin-top: 0;
+    color: var(--cor-acento-principal);
+}
+.modal-botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+.modal-botoes button {
+    width: auto;
+}
+.btn-cancelar, #btn-cancelar-edicao, #btn-cancelar-edicao-cliente, #btn-cancelar-pagamento, #btn-cancelar-mudar-status, #btn-cancelar-edicao-mercadoria {
+    background: #6c757d;
+    color: white;
+}
+
+/* --- Estilos Específicos de Modais --- */
+.detalhes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.detalhes-grid div {
+    font-size: 0.95em;
+    color: var(--cor-texto-secundario);
+}
+.detalhes-grid span {
+    color: var(--cor-texto-principal);
+    font-weight: normal;
+}
+.colunas-detalhe {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+.colunas-detalhe h3 {
+    margin-top: 0;
+    color: var(--cor-acento-principal);
+}
+.colunas-detalhe table {
+    margin-top: 10px;
+}
+
+/* --- Estilos Financeiros --- */
+.status-pago {
+    color: #28a745;
+}
+.status-pendente {
+    color: #e74c3c;
+}
+#total-orcamento, #detalhe-valor-total {
+    text-align: right;
+    font-size: 1.5em;
+    color: var(--cor-acento-principal);
+}
+
+
+/* ======================================== */
+/* --- ESTILOS RESPONSIVOS ---        */
+/* ======================================== */
+
+/* Para telas menores que 800px (tablets e celulares) */
+@media (max-width: 800px) {
+    
+    /* 1. Esconde o menu lateral de desktop */
+    .navegacao {
+        display: none;
+    }
+    
+    /* 2. Mostra o cabeçalho mobile */
+    .mobile-header {
+        display: flex;
+    }
+    
+    /* 3. Faz o conteúdo principal ocupar a tela inteira */
+    .conteudo-principal {
+        margin-left: 0;
+        padding: 15px; /* Menos preenchimento no celular */
+    }
+    
+    /* 4. Define o que acontece quando o menu é aberto */
+    .navegacao.menu-aberto {
+        display: flex; /* Faz o menu reaparecer */
+        width: 100%;   /* Ocupa a largura toda */
+        height: 100vh; /* Ocupa a altura toda */
+        /* position: fixed; já estava definido */
+        /* z-index: 1001; já estava definido */
+    }
+
+    /* 5. Ajustes em tabelas para caberem melhor */
+    table, th, td {
+        font-size: 0.85em; /* Diminui a fonte da tabela */
+        padding: 8px;
+    }
+
+    /* 6. Ajuste nos formulários "grid" (como o de adicionar item) */
+    .item-adder-form {
+        grid-template-columns: 1fr; /* Faz os campos ficarem um em cima do outro */
+        gap: 15px;
+    }
+    .item-adder-form button {
+        width: 100%; /* Botão ocupa 100% no mobile */
+    }
+
+    /* 7. Ajuste nos modais */
+    .modal {
+        width: 90%;
+        padding: 20px;
+    }
+    .colunas-detalhe {
+        grid-template-columns: 1fr; /* Faz as tabelas do modal ficarem uma em cima da outra */
+    }
+    .detalhes-grid {
+        grid-template-columns: 1fr; /* Faz os detalhes ficarem um em cima do outro */
+    }
+    /* --- DENTRO DE @media (max-width: 800px) { ... } --- */
+
+/* 8. Ajuste para Tabelas no Mobile */
+.tabela-responsiva {
+    width: 100%;
+    overflow-x: auto; /* PERMITE O SCROLL HORIZONTAL */
+    -webkit-overflow-scrolling: touch; /* Melhora o toque no iOS */
+}
+
+/* Força a tabela a ter sua largura total (evita o corte de colunas) */
+.tabela-responsiva table {
+    width: auto; 
+    min-width: 750px; /* Garante uma largura mínima para forçar o scroll */
+}
+
+/* Ajusta o preenchimento dos TDs para caber mais */
+.tabela-responsiva td, .tabela-responsiva th {
+    white-space: nowrap; /* Impede que o texto quebre, forçando a coluna a ser mais larga */
+    padding: 6px 10px;
+}
+}
