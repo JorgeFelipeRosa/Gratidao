@@ -2,9 +2,8 @@
 
 let itensDoOrcamento = [];
 let totalOrcamento = 0;
-let clientesCache = [];
-let produtosCache = [];
 
+// Estilo do botão de excluir da tabela interna
 const estiloBotaoExcluir = `
     background: rgba(226, 88, 88, 0.15); 
     color: #E25858; 
@@ -15,67 +14,169 @@ const estiloBotaoExcluir = `
     margin-left: 5px;
 `;
 
-// Carrega as listas nativas
+const estiloBotaoSelecionar = `
+    background: #04D361;
+    color: #121214;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+`;
+
+// --- LÓGICA DOS MODAIS DE SELEÇÃO ---
 export async function carregarOpcoesOrcamento(supabase) {
-    // CLIENTES
-    const inputCliente = document.getElementById('input-busca-cliente-orcamento');
-    const datalistCliente = document.getElementById('datalist-clientes-orcamento');
+    
+    // --- 1. MODAL CLIENTE ---
+    const modalCliente = document.getElementById('modal-busca-cliente');
+    const btnAbrirCliente = document.getElementById('btn-abrir-modal-cliente');
+    const btnFecharCliente = document.getElementById('btn-fechar-modal-cliente');
+    const btnBuscarCliente = document.getElementById('btn-executar-busca-cliente');
+    const inputBuscaCliente = document.getElementById('input-pesquisa-modal-cliente');
+    const tbodyCliente = document.getElementById('tbody-modal-cliente');
+    
+    // Campos do formulário principal
+    const displayCliente = document.getElementById('display-cliente-orcamento');
     const hiddenIdCliente = document.getElementById('hidden-id-cliente-orcamento');
 
-    if (inputCliente && datalistCliente) {
-        const { data: clientes } = await supabase.from('clientes').select('id, nome').eq('ativo', true).order('nome');
-        if (clientes) {
-            clientesCache = clientes;
-            datalistCliente.innerHTML = '';
-            clientes.forEach(cli => {
-                const option = document.createElement('option');
-                option.value = cli.nome; 
-                datalistCliente.appendChild(option);
-            });
+    if (btnAbrirCliente) {
+        btnAbrirCliente.addEventListener('click', () => {
+            modalCliente.classList.remove('hidden');
+            tbodyCliente.innerHTML = ''; // Limpa busca anterior
+            inputBuscaCliente.value = '';
+            inputBuscaCliente.focus();
+        });
+    }
+    if (btnFecharCliente) btnFecharCliente.addEventListener('click', () => modalCliente.classList.add('hidden'));
+
+    // Função de Buscar Cliente no Banco
+    async function buscarClientes() {
+        const termo = inputBuscaCliente.value;
+        tbodyCliente.innerHTML = '<tr><td colspan="3">Buscando...</td></tr>';
+        
+        let query = supabase.from('clientes').select('id, nome, cpf').eq('ativo', true);
+        
+        if (termo) {
+            // Busca por nome OU cpf
+            query = query.or(`nome.ilike.%${termo}%,cpf.ilike.%${termo}%`);
         }
-        inputCliente.addEventListener('input', () => {
-            const val = inputCliente.value;
-            const found = clientesCache.find(c => c.nome === val);
-            if (found) {
-                hiddenIdCliente.value = found.id;
-                inputCliente.style.borderColor = '#04D361';
-            } else {
-                hiddenIdCliente.value = '';
-                inputCliente.style.borderColor = '';
-            }
+        
+        const { data, error } = await query.limit(20); // Limita a 20 resultados
+
+        if (error) {
+            tbodyCliente.innerHTML = `<tr><td colspan="3">Erro: ${error.message}</td></tr>`;
+            return;
+        }
+        
+        tbodyCliente.innerHTML = '';
+        if (data.length === 0) {
+            tbodyCliente.innerHTML = '<tr><td colspan="3">Nenhum cliente encontrado.</td></tr>';
+            return;
+        }
+
+        data.forEach(cli => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${cli.nome}</td>
+                <td>${cli.cpf}</td>
+                <td><button type="button" class="btn-selecionar-cliente" data-id="${cli.id}" data-nome="${cli.nome}" style="${estiloBotaoSelecionar}">Usar</button></td>
+            `;
+            tbodyCliente.appendChild(tr);
+        });
+
+        // Liga os botões de selecionar
+        document.querySelectorAll('.btn-selecionar-cliente').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+                const nome = e.target.getAttribute('data-nome');
+                
+                // PREENCHE O FORMULÁRIO PRINCIPAL
+                displayCliente.value = nome;
+                hiddenIdCliente.value = id;
+                
+                modalCliente.classList.add('hidden');
+            });
         });
     }
 
-    // PRODUTOS
-    const inputProduto = document.getElementById('input-busca-produto-orcamento');
-    const datalistProduto = document.getElementById('datalist-produtos-orcamento');
+    if (btnBuscarCliente) {
+        btnBuscarCliente.addEventListener('click', buscarClientes);
+        inputBuscaCliente.addEventListener('keyup', (e) => { if(e.key === 'Enter') buscarClientes(); });
+    }
+
+
+    // --- 2. MODAL PRODUTO ---
+    const modalProduto = document.getElementById('modal-busca-produto');
+    const btnAbrirProduto = document.getElementById('btn-abrir-modal-produto');
+    const btnFecharProduto = document.getElementById('btn-fechar-modal-produto');
+    const btnBuscarProduto = document.getElementById('btn-executar-busca-produto');
+    const inputBuscaProduto = document.getElementById('input-pesquisa-modal-produto');
+    const tbodyProduto = document.getElementById('tbody-modal-produto');
+
+    // Campos do formulário principal
+    const displayProduto = document.getElementById('display-produto-orcamento');
     const hiddenIdProduto = document.getElementById('hidden-id-produto-orcamento');
     const inputPreco = document.getElementById('preco-item-orcamento');
 
-    if (inputProduto && datalistProduto) {
-        const { data: produtos } = await supabase.from('produtos').select('id, nome_produto, preco_medio').eq('ativo', true).order('nome_produto');
-        if (produtos) {
-            produtosCache = produtos;
-            datalistProduto.innerHTML = '';
-            produtos.forEach(prod => {
-                const option = document.createElement('option');
-                option.value = prod.nome_produto;
-                datalistProduto.appendChild(option);
-            });
-        }
-        inputProduto.addEventListener('input', () => {
-            const val = inputProduto.value;
-            const found = produtosCache.find(p => p.nome_produto === val);
-            if (found) {
-                hiddenIdProduto.value = found.id;
-                if(inputPreco) inputPreco.value = found.preco_medio.toFixed(2);
-                inputProduto.style.borderColor = '#04D361';
-            } else {
-                hiddenIdProduto.value = '';
-                inputPreco.value = '';
-                inputProduto.style.borderColor = '';
-            }
+    if (btnAbrirProduto) {
+        btnAbrirProduto.addEventListener('click', () => {
+            modalProduto.classList.remove('hidden');
+            tbodyProduto.innerHTML = '';
+            inputBuscaProduto.value = '';
+            inputBuscaProduto.focus();
         });
+    }
+    if (btnFecharProduto) btnFecharProduto.addEventListener('click', () => modalProduto.classList.add('hidden'));
+
+    async function buscarProdutos() {
+        const termo = inputBuscaProduto.value;
+        tbodyProduto.innerHTML = '<tr><td colspan="3">Buscando...</td></tr>';
+        
+        let query = supabase.from('produtos').select('id, nome_produto, preco_medio').eq('ativo', true);
+        if (termo) query = query.ilike('nome_produto', `%${termo}%`);
+        
+        const { data, error } = await query.limit(20);
+
+        if (error) {
+            tbodyProduto.innerHTML = `<tr><td colspan="3">Erro: ${error.message}</td></tr>`;
+            return;
+        }
+        
+        tbodyProduto.innerHTML = '';
+        if (data.length === 0) {
+            tbodyProduto.innerHTML = '<tr><td colspan="3">Nenhum produto encontrado.</td></tr>';
+            return;
+        }
+
+        data.forEach(prod => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${prod.nome_produto}</td>
+                <td>R$ ${prod.preco_medio.toFixed(2)}</td>
+                <td><button type="button" class="btn-selecionar-produto" data-id="${prod.id}" data-nome="${prod.nome_produto}" data-preco="${prod.preco_medio}" style="${estiloBotaoSelecionar}">Usar</button></td>
+            `;
+            tbodyProduto.appendChild(tr);
+        });
+
+        document.querySelectorAll('.btn-selecionar-produto').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+                const nome = e.target.getAttribute('data-nome');
+                const preco = e.target.getAttribute('data-preco');
+                
+                // PREENCHE O FORMULÁRIO PRINCIPAL
+                displayProduto.value = nome;
+                hiddenIdProduto.value = id;
+                inputPreco.value = parseFloat(preco).toFixed(2);
+                
+                modalProduto.classList.add('hidden');
+            });
+        });
+    }
+
+    if (btnBuscarProduto) {
+        btnBuscarProduto.addEventListener('click', buscarProdutos);
+        inputBuscaProduto.addEventListener('keyup', (e) => { if(e.key === 'Enter') buscarProdutos(); });
     }
 }
 
@@ -97,9 +198,7 @@ function renderizarTabelaItens() {
             <td>R$ ${item.preco_unitario_negociado.toFixed(2)}</td>
             <td>${item.medida}</td>
             <td>
-                <button type="button" class="btn-acao btn-danger btn-excluir-item-temp" data-index="${index}">
-                    Excluir
-                </button>
+                <button type="button" class="btn-excluir-item-temp" data-index="${index}" style="${estiloBotaoExcluir}">Excluir</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -119,19 +218,22 @@ export function initFormularioOrcamento(supabase) {
     const formOrcamento = document.getElementById('formOrcamento');
     if (!formOrcamento) return;
 
+    if (formOrcamento.getAttribute('data-init') === 'true') return;
+    formOrcamento.setAttribute('data-init', 'true');
+
     const btnAddItem = document.getElementById('btn-add-item-orcamento');
     const btnSalvarOrcamento = document.getElementById('btnSalvarOrcamento');
     const mensagemOrcamento = document.getElementById('mensagemOrcamento');
     
     btnAddItem.addEventListener('click', () => {
         const produtoId = document.getElementById('hidden-id-produto-orcamento').value;
-        const produtoNome = document.getElementById('input-busca-produto-orcamento').value;
+        const produtoNome = document.getElementById('display-produto-orcamento').value;
         const quantidade = parseFloat(document.getElementById('qtd-item-orcamento').value);
         const preco = parseFloat(document.getElementById('preco-item-orcamento').value);
         const medida = document.getElementById('medida-item-orcamento').value;
 
         if (!produtoId || isNaN(quantidade) || isNaN(preco) || preco <= 0) {
-            alert('Selecione um produto da lista.');
+            alert('Busque um produto e preencha a quantidade/preço.');
             return;
         }
 
@@ -146,8 +248,8 @@ export function initFormularioOrcamento(supabase) {
 
         renderizarTabelaItens();
         
-        // Limpa campos
-        document.getElementById('input-busca-produto-orcamento').value = "";
+        // Limpa campos do item
+        document.getElementById('display-produto-orcamento').value = "";
         document.getElementById('hidden-id-produto-orcamento').value = "";
         document.getElementById('qtd-item-orcamento').value = "1";
         document.getElementById('preco-item-orcamento').value = "";
@@ -159,7 +261,7 @@ export function initFormularioOrcamento(supabase) {
         if (itensDoOrcamento.length === 0) return alert('Adicione itens.');
         
         const clienteId = document.getElementById('hidden-id-cliente-orcamento').value;
-        if (!clienteId) return alert('Selecione um cliente.');
+        if (!clienteId) return alert('Busque e selecione um cliente.');
 
         btnSalvarOrcamento.disabled = true; btnSalvarOrcamento.innerText = 'Salvando...';
         mensagemOrcamento.textContent = '';
@@ -187,12 +289,16 @@ export function initFormularioOrcamento(supabase) {
             }));
 
             const { error: erroItens } = await supabase.from('orcamentos_item').insert(itensParaSalvar);
-            if (erroItens) throw new Error(erroItens.message);
+            if (erroItens) {
+                await supabase.from('orcamentos_capa').delete().eq('id', capaSalva.id);
+                throw new Error(erroItens.message);
+            }
 
             mensagemOrcamento.style.color = 'green';
             mensagemOrcamento.textContent = `Orçamento #${capaSalva.id} salvo!`;
             
             formOrcamento.reset();
+            document.getElementById('display-cliente-orcamento').value = "";
             document.getElementById('hidden-id-cliente-orcamento').value = "";
             itensDoOrcamento = [];
             renderizarTabelaItens();
@@ -208,7 +314,7 @@ export function initFormularioOrcamento(supabase) {
     });
 }
 
-// --- CONSULTAS (MANTÉM IGUAL AO ANTERIOR) ---
+// --- CONSULTAS DE ORÇAMENTO (Igual ao anterior) ---
 export function initFuncionalidadeBuscaOrcamento(supabase) {
     const btnBuscar = document.getElementById('btn-busca-orcamento');
     const btnLimpar = document.getElementById('btn-limpar-busca-orcamento');
@@ -255,14 +361,9 @@ export async function carregarOrcamentos(supabase, termoBusca = null) {
             <td>R$ ${orcamento.valor_total_orcamento.toFixed(2)}</td>
             <td>${status}</td>
             <td>
-                <button class="btn-acao btn-info btn-visualizar-orcamento" data-id="${orcamento.id}">Ver</button>
-                
-                ${status === 'Pendente' ? 
-                    `<button class="btn-acao btn-success btn-aprovar-orcamento" data-id="${orcamento.id}">Aprovar</button>` 
-                    : ''
-                }
-                
-                <button class="btn-acao btn-danger btn-excluir-orcamento" data-id="${orcamento.id}">Excluir</button>
+                <button class="btn-visualizar-orcamento" data-id="${orcamento.id}" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Ver</button>
+                ${status === 'Pendente' ? `<button class="btn-aprovar-orcamento" data-id="${orcamento.id}" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 5px;">Aprovar</button>` : ''}
+                <button class="btn-excluir-orcamento" data-id="${orcamento.id}" style="${estiloBotaoExcluir}">Excluir</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -287,6 +388,7 @@ function attachOrcamentoEvents(supabase) {
     }));
 }
 
+// Modal Visualizar (Mantido igual)
 const modalFundoVisualizar = document.getElementById('modal-fundo-visualizar');
 async function abrirModalVisualizar(supabase, orcamentoId) {
     if (!modalFundoVisualizar) return;

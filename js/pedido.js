@@ -66,6 +66,13 @@ export function initFormularioPedido(supabase) {
     const formPedido = document.getElementById('formPedido');
     if (!formPedido) return;
 
+    // --- TRAVA DE SEGURANÇA ---
+    if (formPedido.getAttribute('data-init') === 'true') return;
+    formPedido.setAttribute('data-init', 'true');
+    // -------------------------
+    
+    // ... resto do código ...
+
     const btnCarregar = document.getElementById('btn-carregar-orcamento');
     
     btnCarregar.addEventListener('click', async () => {
@@ -304,8 +311,15 @@ function abrirModalPagamento(supabase, id, saldo, nome) {
 document.getElementById('btn-cancelar-pagamento')?.addEventListener('click', () => modalPgto.classList.add('hidden'));
 
 export function initFormularioPagamento(supabase) {
-    if (!formPgto) return;
-    formPgto.addEventListener('submit', async (e) => {
+    if (!formAddPagamento) return;
+
+    // --- TRAVA DE SEGURANÇA ---
+    if (formAddPagamento.getAttribute('data-init') === 'true') return;
+    formAddPagamento.setAttribute('data-init', 'true');
+    // -------------------------
+
+    formAddPagamento.addEventListener('submit', async (e) => {
+    // ... resto do código ...
         e.preventDefault();
         const btn = document.getElementById('btn-salvar-pagamento');
         const msg = document.getElementById('mensagemAddPagamento');
@@ -395,8 +409,15 @@ function abrirModalMudarStatus(supabase, id) {
 document.getElementById('btn-cancelar-mudar-status')?.addEventListener('click', () => modalStatus.classList.add('hidden'));
 
 export function initFormularioMudarStatus(supabase) {
-    if (!formStatus) return;
-    formStatus.addEventListener('submit', async (e) => {
+    if (!formMudarStatus) return;
+
+    // --- TRAVA DE SEGURANÇA ---
+    if (formMudarStatus.getAttribute('data-init') === 'true') return;
+    formMudarStatus.setAttribute('data-init', 'true');
+    // -------------------------
+
+    formMudarStatus.addEventListener('submit', async (e) => {
+    // ... resto do código ...
         e.preventDefault();
         const id = document.getElementById('status-hidden-pedido-id').value;
         const status = new FormData(formStatus).get('id_status_pedido');

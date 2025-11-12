@@ -48,7 +48,13 @@ export function initFormularioMercadoria(supabase) {
     const formMercadoria = document.getElementById('formMercadoria');
     if (!formMercadoria) return;
 
+    // --- TRAVA DE SEGURANÇA ---
+    if (formMercadoria.getAttribute('data-init') === 'true') return;
+    formMercadoria.setAttribute('data-init', 'true');
+    // -------------------------
+
     const btnSalvar = document.getElementById('btnSalvarMercadoria');
+    // ... resto do código ...
     const msgMercadoria = document.getElementById('mensagemMercadoria');
 
     formMercadoria.addEventListener('submit', async (e) => {

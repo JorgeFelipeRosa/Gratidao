@@ -50,15 +50,20 @@ export async function carregarOpcoesEditarCliente(supabase) {
     carregarMenu(supabase, 'edit-id_canal_venda', 'canais_venda', 'nome_canal');
 }
 
-// Exportada: "Liga" o formulário de SALVAR (CADASTRO)
 export function initFormularioCliente(supabase) {
     const formCliente = document.getElementById('formCliente');
     if (!formCliente) return; 
+
+    // --- TRAVA DE SEGURANÇA (NOVO) ---
+    if (formCliente.getAttribute('data-init') === 'true') return; // Já ligou? Sai.
+    formCliente.setAttribute('data-init', 'true'); // Marca como ligado.
+    // ---------------------------------
 
     const mensagemCliente = document.getElementById('mensagem');
     const btnSalvarCliente = document.getElementById('btnSalvarCliente');
 
     formCliente.addEventListener('submit', async function(e) {
+        // ... (o resto do código continua igual) ...
         e.preventDefault(); 
         btnSalvarCliente.disabled = true;
         btnSalvarCliente.innerText = "Salvando...";
@@ -68,11 +73,7 @@ export function initFormularioCliente(supabase) {
         const dadosCliente = Object.fromEntries(formData.entries());
         const cpfParaValidar = dadosCliente.cpf;
         
-        // Validação CPF
-        const { count, error: erroContagem } = await supabase
-            .from('clientes')
-            .select('cpf', { count: 'exact', head: true })
-            .eq('cpf', cpfParaValidar);
+        const { count, error: erroContagem } = await supabase.from('clientes').select('cpf', { count: 'exact', head: true }).eq('cpf', cpfParaValidar);
 
         if (erroContagem || count > 0) {
             mensagemCliente.style.color = "red";
@@ -99,7 +100,6 @@ export function initFormularioCliente(supabase) {
         btnSalvarCliente.innerText = "Salvar Cliente";
     });
 }
-
 // --- NOVO: Inicializa a Busca de Clientes ---
 export function initFuncionalidadeBuscaCliente(supabase) {
     const btnBuscar = document.getElementById('btn-busca-cliente');

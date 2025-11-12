@@ -1,91 +1,141 @@
 ﻿// js/consumo.js
 
-let mercadoriasCache = [];
+const estiloBotaoSelecionar = `
+    background: #04D361;
+    color: #121214;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+`;
 
-// Exportada: Carrega os menus da tela "Registrar Consumo"
+// Exportada: Carrega os menus e configura o Modal
 export async function carregarOpcoesConsumo(supabase) {
     const selectItemPedido = document.getElementById('consumo-select-item-pedido');
     
-    // Elementos da Busca Nativa
-    const inputBusca = document.getElementById('input-busca-mercadoria-consumo');
-    const dataList = document.getElementById('datalist-mercadoria-consumo'); // <--- O JS PROCURA ESTE ID
+    // Elementos do Modal de Busca
+    const modalMercadoria = document.getElementById('modal-busca-mercadoria');
+    const btnAbrir = document.getElementById('btn-abrir-modal-mercadoria');
+    const btnFechar = document.getElementById('btn-fechar-modal-mercadoria');
+    const btnBuscar = document.getElementById('btn-executar-busca-mercadoria');
+    const inputBuscaModal = document.getElementById('input-pesquisa-modal-mercadoria');
+    const tbodyModal = document.getElementById('tbody-modal-mercadoria');
+
+    // Campos do Formulário Principal
+    const displayMercadoria = document.getElementById('display-mercadoria-consumo');
     const hiddenId = document.getElementById('hidden-id-mercadoria');
     const inputCusto = document.getElementById('consumo-custo');
     
-    // Se não achar os elementos, para a execução para não dar erro no console
-    if (!selectItemPedido || !inputBusca || !dataList) return;
+    // 1. Carregar Itens de Pedido (Mantido igual)
+    if (selectItemPedido) {
+        const STATUS_PRODUCAO = [1, 2];
+        try {
+            const { data: itens, error: erroItens } = await supabase
+                .from('pedidos_item')
+                .select(`id, id_produto, pedidos_capa!inner(id, id_status_pedido), produtos(nome_produto)`)
+                .in('pedidos_capa.id_status_pedido', STATUS_PRODUCAO);
 
-    // 1. Carregar Itens de Pedido (Pendente/Em Produção)
-    const STATUS_PRODUCAO = [1, 2];
-    try {
-        const { data: itens, error: erroItens } = await supabase
-            .from('pedidos_item')
-            .select(`
-                id,
-                id_produto,
-                pedidos_capa!inner( id, id_status_pedido ), 
-                produtos ( nome_produto )
-            `)
-            .in('pedidos_capa.id_status_pedido', STATUS_PRODUCAO);
-
-        if (erroItens) {
-            console.error('Erro itens:', erroItens);
-            selectItemPedido.innerHTML = `<option>Erro ao carregar</option>`;
-        } else {
-            selectItemPedido.innerHTML = `<option value="">Selecione o item a ser produzido</option>`;
-            if (itens.length === 0) {
-                selectItemPedido.innerHTML = `<option value="">Nenhum pedido em produção</option>`;
+            if (erroItens) {
+                selectItemPedido.innerHTML = `<option>Erro ao carregar</option>`;
             } else {
-                itens.forEach(item => {
-                    const valor = JSON.stringify({ id_pedido_item: item.id, id_produto_final: item.id_produto });
-                    selectItemPedido.innerHTML += `<option value='${valor}'>[Pedido #${item.pedidos_capa.id}] - ${item.produtos.nome_produto}</option>`;
-                });
+                selectItemPedido.innerHTML = `<option value="">Selecione o item a ser produzido</option>`;
+                if (itens.length === 0) {
+                    selectItemPedido.innerHTML = `<option value="">Nenhum pedido em produção</option>`;
+                } else {
+                    itens.forEach(item => {
+                        const valor = JSON.stringify({ id_pedido_item: item.id, id_produto_final: item.id_produto });
+                        selectItemPedido.innerHTML += `<option value='${valor}'>[Pedido #${item.pedidos_capa.id}] - ${item.produtos.nome_produto}</option>`;
+                    });
+                }
             }
-        }
-    } catch (e) { console.error(e); }
+        } catch (e) { console.error(e); }
+    }
 
-    // 2. Carregar Matérias-Primas para o Datalist
-    try {
-        const { data: mercadorias } = await supabase
-            .from('mercadorias')
-            .select(`id, nome_material, valor_custo`)
-            .order('nome_material', { ascending: true });
-            
-        if (mercadorias) {
-            mercadoriasCache = mercadorias; // Salva na memória
-            dataList.innerHTML = ''; // Limpa a lista antes de encher
-            
-            mercadorias.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.nome_material; 
-                dataList.appendChild(option);
+    // 2. LÓGICA DO MODAL (Abrir/Fechar)
+    if (btnAbrir) {
+        btnAbrir.addEventListener('click', () => {
+            modalMercadoria.classList.remove('hidden');
+            tbodyModal.innerHTML = ''; // Limpa busca anterior
+            inputBuscaModal.value = '';
+            inputBuscaModal.focus();
+        });
+    }
+    if (btnFechar) btnFechar.addEventListener('click', () => modalMercadoria.classList.add('hidden'));
+
+    // 3. LÓGICA DE BUSCA NO BANCO
+    async function buscarMateriais() {
+        const termo = inputBuscaModal.value;
+        tbodyModal.innerHTML = '<tr><td colspan="3">Buscando...</td></tr>';
+        
+        let query = supabase.from('mercadorias').select('id, nome_material, valor_custo').order('nome_material');
+        
+        if (termo) {
+            query = query.ilike('nome_material', `%${termo}%`);
+        }
+        
+        const { data, error } = await query.limit(20);
+
+        if (error) {
+            tbodyModal.innerHTML = `<tr><td colspan="3">Erro: ${error.message}</td></tr>`;
+            return;
+        }
+        
+        tbodyModal.innerHTML = '';
+        if (data.length === 0) {
+            tbodyModal.innerHTML = '<tr><td colspan="3">Nenhum material encontrado.</td></tr>';
+            return;
+        }
+
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.nome_material}</td>
+                <td>R$ ${item.valor_custo.toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn-selecionar-material" 
+                            data-id="${item.id}" 
+                            data-nome="${item.nome_material}" 
+                            data-custo="${item.valor_custo}" 
+                            style="${estiloBotaoSelecionar}">
+                        Usar
+                    </button>
+                </td>
+            `;
+            tbodyModal.appendChild(tr);
+        });
+
+        // Liga os botões "Usar"
+        document.querySelectorAll('.btn-selecionar-material').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+                const nome = e.target.getAttribute('data-nome');
+                const custo = parseFloat(e.target.getAttribute('data-custo'));
+                
+                // PREENCHE O FORMULÁRIO PRINCIPAL
+                displayMercadoria.value = nome;
+                hiddenId.value = id;
+                inputCusto.value = custo.toFixed(2); // Auto-preenche preço
+                
+                modalMercadoria.classList.add('hidden'); // Fecha modal
             });
-        }
-    } catch (e) { console.error(e); }
-    
-    // 3. Detectar seleção na lista (Auto-preencher preço e ID)
-    inputBusca.addEventListener('input', () => {
-        const valorDigitado = inputBusca.value;
-        
-        // Procura o item exato na memória
-        const materialEncontrado = mercadoriasCache.find(m => m.nome_material === valorDigitado);
-        
-        if (materialEncontrado) {
-            hiddenId.value = materialEncontrado.id;
-            inputCusto.value = materialEncontrado.valor_custo.toFixed(2); // Auto-preenche custo
-            inputBusca.style.borderColor = '#04D361'; // Borda Verde
-        } else {
-            hiddenId.value = "";
-            inputCusto.value = "";
-            inputBusca.style.borderColor = ''; 
-        }
-    });
+        });
+    }
+
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', buscarMateriais);
+        inputBuscaModal.addEventListener('keyup', (e) => { if(e.key === 'Enter') buscarMateriais(); });
+    }
 }
 
 // Função de Salvar
 export function initFormularioConsumo(supabase) {
     const formConsumo = document.getElementById('formConsumo');
     if (!formConsumo) return;
+
+    // Trava de Segurança
+    if (formConsumo.getAttribute('data-init') === 'true') return;
+    formConsumo.setAttribute('data-init', 'true');
 
     const btnSalvar = document.getElementById('btnSalvarConsumo');
     const msgConsumo = document.getElementById('mensagemConsumo');
@@ -103,7 +153,7 @@ export function initFormularioConsumo(supabase) {
             // Validação: O campo oculto TEM que ter o ID
             const idMercadoria = document.getElementById('hidden-id-mercadoria').value;
             if (!idMercadoria) {
-                throw new Error("Selecione uma Matéria-Prima válida da lista sugerida.");
+                throw new Error("Selecione uma Matéria-Prima usando a busca (lupa).");
             }
 
             const { id_pedido_item, id_produto_final } = JSON.parse(dadosForm.item_pedido_data);
@@ -128,8 +178,8 @@ export function initFormularioConsumo(supabase) {
             
             // Reset
             formConsumo.reset();
+            document.getElementById('display-mercadoria-consumo').value = "";
             document.getElementById('hidden-id-mercadoria').value = "";
-            document.getElementById('input-busca-mercadoria-consumo').style.borderColor = "";
             
             setTimeout(() => { msgConsumo.textContent = ''; }, 3000);
 

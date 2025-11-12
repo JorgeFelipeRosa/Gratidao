@@ -202,7 +202,7 @@
                     <div><label for="id_categoria_produto">Categoria:</label><select id="id_categoria_produto" name="id_categoria_produto" required><option value="">Carregando...</option></select></div>
                     <div><label for="id_linha_produto">Linha:</label><select id="id_linha_produto" name="id_linha_produto" required><option value="">Carregando...</option></select></div>
                     <div><label for="id_comodo">Cômodo:</label><select id="id_comodo" name="id_comodo" required><option value="">Carregando...</option></select></div>
-                    <div><label for="id_co">Opção "Co":</label><select id="id_co" name="id_co" required><option value="">Carregando...</option></select></div>
+                    <div><label for="id_co">Opção Cor:</label><select id="id_co" name="id_co" required><option value="">Carregando...</option></select></div>
                     <div><label for="id_unidade_medida">Unidade de Medida Padrão:</label><select id="id_unidade_medida" name="id_unidade_medida" required><option value="">Carregando...</option></select></div>
                     <button type="submit" id="btnSalvarProduto">Salvar Produto</button>
                     <div id="mensagemProduto"></div>
@@ -229,12 +229,16 @@
                 <form id="formOrcamento">
                     <fieldset class="form-grupo">
                         <legend>Dados Principais</legend>
+                        
                         <div>
                             <label>Cliente:</label>
-                            <input type="text" id="input-busca-cliente-orcamento" list="datalist-clientes-orcamento" placeholder="Digite o nome para buscar..." autocomplete="off" required>
-                            <datalist id="datalist-clientes-orcamento"></datalist>
-                            <input type="hidden" id="hidden-id-cliente-orcamento">
+                            <div class="input-group">
+                                <input type="text" id="display-cliente-orcamento" placeholder="Clique na lupa para buscar..." readonly>
+                                <button type="button" id="btn-abrir-modal-cliente"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                <input type="hidden" id="hidden-id-cliente-orcamento">
+                            </div>
                         </div>
+
                         <div><label for="data-validade-orcamento">Data de Validade:</label><input type="date" id="data-validade-orcamento" required></div>
                         <div><label for="obs-orcamento">Observações (Capa):</label><textarea id="obs-orcamento" rows="3"></textarea></div>
                     </fieldset>
@@ -242,15 +246,20 @@
                     <fieldset class="form-grupo">
                         <legend>Adicionar Itens ao Orçamento</legend>
                         <div class="item-adder-form">
+                            
                             <div>
                                 <label>Produto:</label>
-                                <input type="text" id="input-busca-produto-orcamento" list="datalist-produtos-orcamento" placeholder="Digite o produto..." autocomplete="off">
-                                <datalist id="datalist-produtos-orcamento"></datalist>
-                                <input type="hidden" id="hidden-id-produto-orcamento">
+                                <div class="input-group">
+                                    <input type="text" id="display-produto-orcamento" placeholder="Clique na lupa..." readonly>
+                                    <button type="button" id="btn-abrir-modal-produto"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                    <input type="hidden" id="hidden-id-produto-orcamento">
+                                </div>
                             </div>
+
                             <div><label for="qtd-item-orcamento">Quantidade:</label><input type="number" id="qtd-item-orcamento" value="1" step="any"></div>
-                            <div><label for="preco-item-orcamento">Preço Negociado (Unit.):</label><input type="number" id="preco-item-orcamento" step="0.01"></div>
+                            <div><label for="preco-item-orcamento">Preço (Unit.):</label><input type="number" id="preco-item-orcamento" step="0.01"></div>
                             <div><label for="medida-item-orcamento">Medida:</label><input type="text" id="medida-item-orcamento" placeholder="Ex: 1.20 x 0.80"></div>
+                            
                             <button type="button" id="btn-add-item-orcamento">Adicionar Item +</button>
                         </div>
                     </fieldset>
@@ -368,11 +377,11 @@
                         
                         <div>
                             <label>Matéria-Prima:</label>
-                            <input type="text" id="input-busca-mercadoria-consumo" list="datalist-mercadoria-consumo" placeholder="Digite para buscar o material..." autocomplete="off" required>
-                            
-                            <datalist id="datalist-mercadoria-consumo"></datalist>
-                            
-                            <input type="hidden" name="id_mercadoria_usada" id="hidden-id-mercadoria">
+                            <div class="input-group">
+                                <input type="text" id="display-mercadoria-consumo" placeholder="Clique na lupa para buscar..." readonly>
+                                <button type="button" id="btn-abrir-modal-mercadoria"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                <input type="hidden" name="id_mercadoria_usada" id="hidden-id-mercadoria">
+                            </div>
                         </div>
 
                         <div class="item-adder-form" style="grid-template-columns: 1fr 1fr;">
@@ -686,6 +695,61 @@
             </div>
         </div>
     </div>
+<div id="modal-busca-cliente" class="modal-fundo hidden">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Selecionar Cliente</h2>
+            <div class="search-container">
+                <input type="text" id="input-pesquisa-modal-cliente" placeholder="Digite o nome ou CPF...">
+                <button type="button" id="btn-executar-busca-cliente">Buscar</button>
+            </div>
+            <div class="tabela-responsiva" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                <table id="tabela-resultados-cliente">
+                    <thead><tr><th>Nome</th><th>CPF</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-modal-cliente"></tbody>
+                </table>
+            </div>
+            <div class="modal-botoes">
+                <button type="button" class="btn-cancelar" id="btn-fechar-modal-cliente">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
+    <div id="modal-busca-produto" class="modal-fundo hidden">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Selecionar Produto</h2>
+            <div class="search-container">
+                <input type="text" id="input-pesquisa-modal-produto" placeholder="Digite o nome do produto...">
+                <button type="button" id="btn-executar-busca-produto">Buscar</button>
+            </div>
+            <div class="tabela-responsiva" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                <table id="tabela-resultados-produto">
+                    <thead><tr><th>Produto</th><th>Preço</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-modal-produto"></tbody>
+                </table>
+            </div>
+            <div class="modal-botoes">
+                <button type="button" class="btn-cancelar" id="btn-fechar-modal-produto">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modal-busca-mercadoria" class="modal-fundo hidden">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Selecionar Material</h2>
+            <div class="search-container">
+                <input type="text" id="input-pesquisa-modal-mercadoria" placeholder="Digite o nome do material...">
+                <button type="button" id="btn-executar-busca-mercadoria">Buscar</button>
+            </div>
+            <div class="tabela-responsiva" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                <table id="tabela-resultados-mercadoria">
+                    <thead><tr><th>Material</th><th>Custo</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-modal-mercadoria"></tbody>
+                </table>
+            </div>
+            <div class="modal-botoes">
+                <button type="button" class="btn-cancelar" id="btn-fechar-modal-mercadoria">Cancelar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -44,10 +44,14 @@ export async function carregarOpcoesCadastroProduto(supabase) {
     carregarMenuOpcoes(supabase, 'id_unidade_medida', 'unidades_medida', 'sigla_medida'); 
 }
 
-// Exportada: "Liga" o formulário de salvar produto (CADASTRO)
 export function initFormularioProduto(supabase) {
     const formProduto = document.getElementById('formProduto');
     if (!formProduto) return; 
+
+    // --- TRAVA DE SEGURANÇA ---
+    if (formProduto.getAttribute('data-init') === 'true') return;
+    formProduto.setAttribute('data-init', 'true');
+    // -------------------------
 
     const mensagemProduto = document.getElementById('mensagemProduto');
     const btnSalvarProduto = document.getElementById('btnSalvarProduto');
@@ -231,6 +235,11 @@ document.getElementById('btn-cancelar-edicao')?.addEventListener('click', () => 
 
 export function initFormularioEditarProduto(supabase) {
     if (!formEditarProduto) return;
+
+    // --- TRAVA DE SEGURANÇA ---
+    if (formEditarProduto.getAttribute('data-init') === 'true') return;
+    formEditarProduto.setAttribute('data-init', 'true');
+    // -------------------------
 
     formEditarProduto.addEventListener('submit', async (e) => {
         e.preventDefault();

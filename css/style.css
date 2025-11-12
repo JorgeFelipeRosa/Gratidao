@@ -397,13 +397,25 @@ fieldset {
 legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
 
 /* --- CORREÇÃO: ORÇAMENTO E PEDIDO --- */
-#formOrcamento table, #formOrcamento h3, 
-#formPedido table, #formPedido h3 {
-    grid-column: 1 / -1;
+/* Força os títulos e a caixa da tabela a ocuparem a linha inteira */
+#formOrcamento h3, 
+#formPedido h3, 
+#formOrcamento .tabela-responsiva, 
+#formPedido .tabela-responsiva {
+    grid-column: 1 / -1; /* Ocupa de ponta a ponta */
     width: 100%;
     margin-top: 15px;
 }
-#total-orcamento, #pedido-valor-total {
+
+/* Garante que a tabela dentro da caixa tenha largura total */
+#formOrcamento table,
+#formPedido table {
+    width: 100%;
+}
+
+/* Arruma o Total */
+#total-orcamento, 
+#pedido-valor-total {
     grid-column: 1 / -1;
     text-align: right;
     font-size: 1.4rem;
@@ -529,4 +541,21 @@ legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
     .recibo-data-local { text-align: right; margin-bottom: 80px; font-size: 1.1rem; }
     .recibo-assinatura { text-align: center; page-break-inside: avoid; }
     .linha-assinatura { border-top: 1px solid #000; width: 400px; margin: 0 auto 10px auto; }
+}
+
+/* --- INPUT GROUP (Campo + Botão ao lado) --- */
+.input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.input-group input {
+    flex: 1; /* Ocupa todo o espaço sobrando */
+    background-color: #2a2a30; /* Um pouco mais claro para indicar leitura */
+    cursor: pointer;
+}
+.input-group button {
+    width: auto;
+    padding: 12px 15px;
+    margin: 0; /* Remove margem padrão */
 }
