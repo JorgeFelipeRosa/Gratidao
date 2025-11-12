@@ -481,8 +481,20 @@ legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
 /* RESPONSIVIDADE (MOBILE - CORREÇÃO FINAL) */
 /* ======================================== */
 @media (max-width: 800px) {
-    .navegacao { transform: translateX(-100%); width: 85%; }
-    .navegacao.menu-aberto { transform: translateX(0); box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+    /* 1. Ajuste do Menu */
+    .navegacao { 
+        transform: translateX(-100%); 
+        width: 85%; 
+        /* CORREÇÃO DO BUG DE ROLAGEM: */
+        height: 100%;       /* Garante altura total */
+        overflow-y: auto;   /* Permite rolar se for muito comprido */
+        padding-bottom: 100px !important; /* Adiciona um espaço extra no final para não cortar o botão Sair */
+    }
+    
+    .navegacao.menu-aberto { 
+        transform: translateX(0); 
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5); 
+    }
     
     .mobile-header { display: flex; }
     .conteudo-principal { margin-left: 0; padding: 15px; }
