@@ -244,9 +244,23 @@ export async function carregarPedidos(supabase, termoBusca = null) {
             <td>${pedido.status_pedido}</td>
             <td>${pedido.status_pagamento}</td>
             <td>
-                <button class="btn-visualizar-pedido" data-id="${pedido.id}">Ver</button>
-                <button class="btn-mudar-status-pedido" data-id="${pedido.id}">Status</button>
-                ${pedido.saldo_pendente > 0 ? `<button class="btn-add-pagamento" data-id="${pedido.id}" data-saldo="${pedido.saldo_pendente}" data-cliente="${pedido.cliente_nome}">Pagar</button>` : ''}
+                <button class="btn-acao btn-info btn-visualizar-pedido" data-id="${pedido.id}">
+                    Ver
+                </button>
+                
+                <button class="btn-acao btn-warning btn-mudar-status-pedido" data-id="${pedido.id}">
+                    Status
+                </button>
+                
+                ${pedido.saldo_pendente > 0 ? 
+                    `<button class="btn-acao btn-success btn-add-pagamento" 
+                             data-id="${pedido.id}" 
+                             data-saldo="${pedido.saldo_pendente}" 
+                             data-cliente="${pedido.cliente_nome}">
+                        Pagar
+                    </button>` 
+                    : ''
+                }
             </td>
         `;
         tbody.appendChild(tr);

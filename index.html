@@ -229,25 +229,39 @@
                 <form id="formOrcamento">
                     <fieldset class="form-grupo">
                         <legend>Dados Principais</legend>
-                        <div><label for="select-cliente-orcamento">Cliente:</label><select id="select-cliente-orcamento" required><option value="">Carregando clientes...</option></select></div>
+                        <div>
+                            <label>Cliente:</label>
+                            <input type="text" id="input-busca-cliente-orcamento" list="datalist-clientes-orcamento" placeholder="Digite o nome para buscar..." autocomplete="off" required>
+                            <datalist id="datalist-clientes-orcamento"></datalist>
+                            <input type="hidden" id="hidden-id-cliente-orcamento">
+                        </div>
                         <div><label for="data-validade-orcamento">Data de Validade:</label><input type="date" id="data-validade-orcamento" required></div>
                         <div><label for="obs-orcamento">Observações (Capa):</label><textarea id="obs-orcamento" rows="3"></textarea></div>
                     </fieldset>
+                    
                     <fieldset class="form-grupo">
                         <legend>Adicionar Itens ao Orçamento</legend>
                         <div class="item-adder-form">
-                            <div><label for="select-produto-orcamento">Produto:</label><select id="select-produto-orcamento"><option value="">Carregando produtos...</option></select></div>
+                            <div>
+                                <label>Produto:</label>
+                                <input type="text" id="input-busca-produto-orcamento" list="datalist-produtos-orcamento" placeholder="Digite o produto..." autocomplete="off">
+                                <datalist id="datalist-produtos-orcamento"></datalist>
+                                <input type="hidden" id="hidden-id-produto-orcamento">
+                            </div>
                             <div><label for="qtd-item-orcamento">Quantidade:</label><input type="number" id="qtd-item-orcamento" value="1" step="any"></div>
                             <div><label for="preco-item-orcamento">Preço Negociado (Unit.):</label><input type="number" id="preco-item-orcamento" step="0.01"></div>
                             <div><label for="medida-item-orcamento">Medida:</label><input type="text" id="medida-item-orcamento" placeholder="Ex: 1.20 x 0.80"></div>
                             <button type="button" id="btn-add-item-orcamento">Adicionar Item +</button>
                         </div>
                     </fieldset>
+
                     <h3>Itens do Orçamento</h3>
-                    <table id="tabelaItensOrcamento">
-                        <thead><tr><th>Produto</th><th>Qtd.</th><th>Preço Unit.</th><th>Medida</th><th>Ação</th></tr></thead>
-                        <tbody id="corpoTabelaItensOrcamento"></tbody>
-                    </table>
+                    <div class="tabela-responsiva">
+                        <table id="tabelaItensOrcamento">
+                            <thead><tr><th>Produto</th><th>Qtd.</th><th>Preço Unit.</th><th>Medida</th><th>Ação</th></tr></thead>
+                            <tbody id="corpoTabelaItensOrcamento"></tbody>
+                        </table>
+                    </div>
                     <h3 id="total-orcamento">Total: R$ 0.00</h3>
                     <hr>
                     <button type="submit" id="btnSalvarOrcamento">Salvar Orçamento Completo</button>
@@ -354,11 +368,11 @@
                         
                         <div>
                             <label>Matéria-Prima:</label>
-                            <div class="wrapper-autocomplete">
-                                <input type="text" id="input-busca-mercadoria-consumo" placeholder="Digite para buscar o material..." autocomplete="off" required>
-                                <ul id="lista-resultados-mercadoria" class="lista-sugestoes"></ul>
-                                <input type="hidden" name="id_mercadoria_usada" id="hidden-id-mercadoria">
-                            </div>
+                            <input type="text" id="input-busca-mercadoria-consumo" list="datalist-mercadoria-consumo" placeholder="Digite para buscar o material..." autocomplete="off" required>
+                            
+                            <datalist id="datalist-mercadoria-consumo"></datalist>
+                            
+                            <input type="hidden" name="id_mercadoria_usada" id="hidden-id-mercadoria">
                         </div>
 
                         <div class="item-adder-form" style="grid-template-columns: 1fr 1fr;">
@@ -662,7 +676,7 @@
             </div>
             
             <div class="recibo-data-local">
-                <p>Itapoá/SC, <span id="recibo-data-extenso">Data</span></p>
+                <p>Jaraguá do Sul/SC, <span id="recibo-data-extenso">Data</span></p>
             </div>
             
             <div class="recibo-assinatura">

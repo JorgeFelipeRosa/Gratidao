@@ -184,8 +184,8 @@ export async function carregarClientes(supabase, termoBusca = null) {
             <td>${cliente.bairro || ''}</td>
             <td>${cliente.cidade || ''}</td>
             <td>
-                <button class="btn-editar-cliente" data-id="${cliente.id}" style="${estiloBotaoEditar}">Editar</button>
-                <button class="btn-excluir-cliente" data-id="${cliente.id}" style="${estiloBotaoExcluir}">Excluir</button>
+                <button class="btn-acao btn-warning btn-editar-cliente" data-id="${cliente.id}">Editar</button>
+                <button class="btn-acao btn-danger btn-excluir-cliente" data-id="${cliente.id}">Excluir</button>
             </td>
         `;
         tbody.appendChild(tr);

@@ -17,8 +17,9 @@
     --text-primary: #E1E1E6;    /* Branco gelo */
     --text-secondary: #A8A8B3;  /* Cinza claro */
     
-    --danger: #E25858;          /* Vermelho suave */
-    --success: #04D361;         /* Verde neon */
+    --danger: #E25858;          /* Vermelho */
+    --success: #04D361;         /* Verde */
+    --info: #29B6F6;            /* Azul */
     
     --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
     --radius: 8px;              /* Arredondamento */
@@ -258,7 +259,23 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 2px rgba(245, 197, 24, 0.2);
 }
 
-/* --- BOTÕES --- */
+/* --- BARRA DE PESQUISA --- */
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    align-items: center;
+}
+.search-container input { flex: 1; margin-bottom: 0; background: var(--bg-app); }
+.search-container button { width: auto; padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
+#btn-limpar-busca, [id^="btn-limpar"] { background: #444; color: #ccc; }
+#btn-limpar-busca:hover, [id^="btn-limpar"]:hover { background: #555; color: white; }
+
+/* --- BOTÕES GERAIS E DE AÇÃO --- */
 button {
     background: var(--gold-primary);
     color: #121214;
@@ -275,19 +292,37 @@ button {
 button:hover { background: var(--gold-hover); transform: translateY(-1px); }
 button:active { transform: translateY(1px); }
 
-td button {
+/* Padrão de Botões de Ação (Pequenos) */
+.btn-acao {
     padding: 6px 12px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    font-weight: 700;
+    cursor: pointer;
     margin-right: 5px;
-    width: auto;
-    display: inline-block;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    width: auto; /* Não ocupa 100% na tabela */
 }
-.btn-excluir { background: rgba(226, 88, 88, 0.15); color: var(--danger); border: 1px solid var(--danger); }
-.btn-excluir:hover { background: var(--danger); color: white; }
-.btn-editar { background: rgba(245, 197, 24, 0.15); color: var(--gold-primary); border: 1px solid var(--gold-primary); }
-.btn-editar:hover { background: var(--gold-primary); color: #121214; }
-.btn-cancelar { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); }
-.btn-cancelar:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); border-color: var(--text-primary); }
+
+.btn-warning { background: rgba(245, 197, 24, 0.1); color: var(--gold-primary); border-color: var(--gold-primary); }
+.btn-warning:hover { background: var(--gold-primary); color: #121214; }
+
+.btn-danger { background: rgba(226, 88, 88, 0.1); color: var(--danger); border-color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: white; }
+
+.btn-success { background: rgba(4, 211, 97, 0.1); color: var(--success); border-color: var(--success); }
+.btn-success:hover { background: var(--success); color: #121214; }
+
+.btn-info { background: rgba(41, 182, 246, 0.1); color: var(--info); border-color: var(--info); }
+.btn-info:hover { background: var(--info); color: #121214; }
+
+.btn-cancelar { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); width: auto; }
+.btn-cancelar:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
 
 /* --- TABELAS --- */
 .tabela-responsiva {
@@ -295,6 +330,7 @@ td button {
     border-radius: var(--radius);
     border: 1px solid var(--border-color);
     border-right: 1px solid var(--border-color); 
+    margin-bottom: 20px;
 }
 table { width: 100%; border-collapse: collapse; background: var(--bg-panel); }
 th {
@@ -361,8 +397,8 @@ fieldset {
 legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
 
 /* --- CORREÇÃO: ORÇAMENTO E PEDIDO --- */
-#formOrcamento table, #formOrcamento h3, #formOrcamento .tabela-responsiva,
-#formPedido table, #formPedido h3, #formPedido .tabela-responsiva {
+#formOrcamento table, #formOrcamento h3, 
+#formPedido table, #formPedido h3 {
     grid-column: 1 / -1;
     width: 100%;
     margin-top: 15px;
@@ -375,6 +411,58 @@ legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
     margin-top: 20px;
     padding-top: 10px;
     border-top: 1px solid var(--border-color);
+}
+
+/* ======================================== */
+/* AUTOCOMPLETE PERSONALIZADO               */
+/* ======================================== */
+.wrapper-autocomplete {
+    position: relative;
+    width: 100%;
+}
+
+.lista-sugestoes {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: #202024;
+    border: 1px solid var(--gold-primary);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 9999 !important; /* Garante visibilidade */
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+}
+
+.lista-sugestoes.visivel { display: block !important; }
+
+.lista-sugestoes li {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #323238;
+    color: #E1E1E6;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    background: #202024;
+}
+
+.lista-sugestoes li:hover {
+    background: rgba(245, 197, 24, 0.2);
+    color: #F5C518;
+    padding-left: 20px;
+}
+
+.item-sem-resultado {
+    padding: 15px;
+    color: #A8A8B3;
+    text-align: center;
+    font-style: italic;
 }
 
 /* ======================================== */
@@ -394,6 +482,11 @@ legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
     th, td { padding: 12px 10px; font-size: 0.85rem; white-space: nowrap; }
     td button { padding: 8px; margin: 0 2px; }
     .modal { width: 95%; padding: 15px; max-height: 85vh; }
+
+    /* Ajuste da busca no mobile */
+    .search-container { flex-wrap: wrap; }
+    .search-container input { width: 100%; flex: 1 1 100%; margin-bottom: 5px; }
+    .search-container button { flex: 1; justify-content: center; }
 }
 
 /* ======================================== */
@@ -436,104 +529,4 @@ legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
     .recibo-data-local { text-align: right; margin-bottom: 80px; font-size: 1.1rem; }
     .recibo-assinatura { text-align: center; page-break-inside: avoid; }
     .linha-assinatura { border-top: 1px solid #000; width: 400px; margin: 0 auto 10px auto; }
-}
-/* --- BARRA DE PESQUISA (CONSULTAS) --- */
-.search-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 15px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border-color);
-    align-items: center;
-}
-
-.search-container input {
-    flex: 1; /* Ocupa o espaço restante */
-    margin-bottom: 0; /* Remove margem padrão de inputs */
-    background: var(--bg-app);
-}
-
-.search-container button {
-    width: auto; /* Botão só ocupa o tamanho do texto */
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#btn-limpar-busca {
-    background: #444;
-    color: #ccc;
-}
-#btn-limpar-busca:hover {
-    background: #555;
-    color: white;
-}
-
-
-
-
-
-
-
-/* ======================================== */
-/* AUTOCOMPLETE PERSONALIZADO (PREMIUM)     */
-/* ======================================== */
-
-/* Container para segurar a lista embaixo do input */
-.wrapper-autocomplete {
-    position: relative; /* Importante para a lista absoluta */
-    width: 100%;
-}
-
-/* A lista flutuante */
-.lista-sugestoes {
-    position: absolute;
-    top: 100%; /* Cola logo abaixo do input */
-    left: 0;
-    width: 100%;
-    background: var(--bg-panel);
-    border: 1px solid var(--gold-primary); /* Borda Dourada */
-    border-top: none;
-    border-radius: 0 0 var(--radius) var(--radius);
-    z-index: 1000; /* Fica por cima de tudo */
-    max-height: 250px; /* Altura máxima com scroll */
-    overflow-y: auto;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: none; /* Escondida por padrão */
-}
-
-/* Classe para mostrar a lista via JS */
-.lista-sugestoes.visivel {
-    display: block;
-}
-
-/* Itens da lista */
-.lista-sugestoes li {
-    padding: 12px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    transition: all 0.2s;
-}
-
-/* Hover no item */
-.lista-sugestoes li:hover {
-    background: rgba(245, 197, 24, 0.15); /* Fundo dourado transparente */
-    color: var(--gold-primary);
-    padding-left: 20px; /* Efeito de deslize */
-}
-
-/* Quando não encontra nada */
-.item-sem-resultado {
-    padding: 15px;
-    color: var(--text-secondary);
-    text-align: center;
-    font-style: italic;
 }

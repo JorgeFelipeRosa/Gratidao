@@ -163,8 +163,8 @@ export async function carregarProdutos(supabase, termoBusca = null) {
             <td>R$ ${produto.preco_medio.toFixed(2)}</td>
             <td>${nomeCategoria}</td>
             <td>
-                <button class="btn-editar" data-id="${produto.id}" style="${estiloBotaoEditar}">Editar</button>
-                <button class="btn-excluir" data-id="${produto.id}" style="${estiloBotaoExcluir}">Excluir</button>
+                <button class="btn-acao btn-warning btn-editar" data-id="${produto.id}">Editar</button>
+                <button class="btn-acao btn-danger btn-excluir" data-id="${produto.id}">Excluir</button>
             </td>
         `;
         tbody.appendChild(tr);

@@ -174,12 +174,8 @@ export async function carregarMercadorias(supabase, termoBusca = null) {
             <td>${unidade}</td>
             <td>${fornecedor}</td>
             <td>
-                <button class="btn-editar-mercadoria" data-id="${item.id}" style="${estiloBotaoEditar}">
-                    Editar
-                </button>
-                <button class="btn-excluir-mercadoria" data-id="${item.id}" style="${estiloBotaoExcluir}">
-                    Excluir
-                </button>
+                <button class="btn-acao btn-warning btn-editar-mercadoria" data-id="${item.id}">Editar</button>
+                <button class="btn-acao btn-danger btn-excluir-mercadoria" data-id="${item.id}">Excluir</button>
             </td>
         `;
         tbody.appendChild(tr);
