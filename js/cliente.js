@@ -2,18 +2,18 @@
 
 // --- Estilos dos botões da tabela ---
 const estiloBotaoExcluir = `
-    background: #e74c3c; /* Vermelho */
-    color: white;
-    border: none;
+    background: rgba(226, 88, 88, 0.15); 
+    color: #E25858; 
+    border: 1px solid #E25858;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     margin-left: 5px;
 `;
 const estiloBotaoEditar = `
-    background: #ffc107; /* Amarelo */
-    color: #333;
-    border: none;
+    background: rgba(245, 197, 24, 0.15); 
+    color: #F5C518; 
+    border: 1px solid #F5C518;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
@@ -24,10 +24,7 @@ async function carregarMenu(supabase, idElemento, nomeTabela, nomeColuna) {
     const selectMenu = document.getElementById(idElemento);
     if (!selectMenu) return; 
     
-    // Filtra por 'ativo = true' (para tabelas de opções)
-    let query = supabase.from(nomeTabela).select(`id, ${nomeColuna}`);
-    query = query.eq('ativo', true);
-
+    let query = supabase.from(nomeTabela).select(`id, ${nomeColuna}`).eq('ativo', true);
     const { data, error } = await query;
 
     if (error) {
@@ -65,51 +62,37 @@ export function initFormularioCliente(supabase) {
         e.preventDefault(); 
         btnSalvarCliente.disabled = true;
         btnSalvarCliente.innerText = "Salvando...";
+        mensagemCliente.textContent = '';
         
         const formData = new FormData(formCliente);
         const dadosCliente = Object.fromEntries(formData.entries());
-        
         const cpfParaValidar = dadosCliente.cpf;
         
-        // --- PASSO 1: VERIFICAÇÃO DE UNICIDADE DO CPF ---
+        // Validação CPF
         const { count, error: erroContagem } = await supabase
             .from('clientes')
             .select('cpf', { count: 'exact', head: true })
             .eq('cpf', cpfParaValidar);
 
-        if (erroContagem) {
-            console.error('Erro de validação:', erroContagem);
+        if (erroContagem || count > 0) {
             mensagemCliente.style.color = "red";
-            mensagemCliente.innerText = "Erro na validação do CPF.";
-            btnSalvarCliente.disabled = false;
-            btnSalvarCliente.innerText = "Salvar Cliente";
-            return;
-        }
-
-        if (count > 0) {
-            mensagemCliente.style.color = "red";
-            mensagemCliente.innerText = "ERRO: Este CPF já está cadastrado.";
+            mensagemCliente.innerText = erroContagem ? "Erro na validação." : "ERRO: Este CPF já está cadastrado.";
             btnSalvarCliente.disabled = false;
             btnSalvarCliente.innerText = "Salvar Cliente";
             return;
         }
         
-        // --- PASSO 2: SALVAR ---
-        dadosCliente.ativo = true; // Salva como ativo
-        
+        dadosCliente.ativo = true; 
         const { error: erroSalvamento } = await supabase.from('clientes').insert([ dadosCliente ]); 
 
         if (erroSalvamento) {
-            console.error('Erro ao salvar cliente:', erroSalvamento);
             mensagemCliente.style.color = "red";
             mensagemCliente.innerText = "Erro ao salvar: " + erroSalvamento.message;
         } else {
             mensagemCliente.style.color = "green";
             mensagemCliente.innerText = "Cliente salvo com sucesso!";
             formCliente.reset(); 
-            setTimeout(() => {
-                mensagemCliente.innerText = "";
-            }, 3000);
+            setTimeout(() => { mensagemCliente.innerText = ""; }, 3000);
         }
         
         btnSalvarCliente.disabled = false;
@@ -117,21 +100,42 @@ export function initFormularioCliente(supabase) {
     });
 }
 
-// Exportada: Carrega a TABELA de clientes (MODIFICADA)
-export async function carregarClientes(supabase) {
+// --- NOVO: Inicializa a Busca de Clientes ---
+export function initFuncionalidadeBuscaCliente(supabase) {
+    const btnBuscar = document.getElementById('btn-busca-cliente');
+    const btnLimpar = document.getElementById('btn-limpar-busca-cliente');
+    const inputBusca = document.getElementById('input-busca-cliente');
+
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', () => {
+            carregarClientes(supabase, inputBusca.value);
+        });
+    }
+    if (inputBusca) {
+        inputBusca.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') carregarClientes(supabase, inputBusca.value);
+        });
+    }
+    if (btnLimpar) {
+        btnLimpar.addEventListener('click', () => {
+            inputBusca.value = '';
+            carregarClientes(supabase, null);
+        });
+    }
+}
+
+// --- LÓGICA DE CONSULTAR CLIENTES (COM BUSCA) ---
+export async function carregarClientes(supabase, termoBusca = null) {
     const tbody = document.getElementById('corpoTabelaClientes');
     if (!tbody) return; 
 
-    tbody.innerHTML = '<tr><td colspan="10">Carregando clientes...</td></tr>'; // Colspan 10
+    tbody.innerHTML = '<tr><td colspan="10">Buscando...</td></tr>';
 
-    // --- MUDANÇA: ADICIONADO CAMPOS DE ENDEREÇO NA CONSULTA ---
+    // 1. Busca TODOS os clientes ativos
     const { data: clientes, error } = await supabase
         .from('clientes')
         .select(`
-            id,
-            nome,
-            cpf,
-            telefone,
+            id, nome, cpf, telefone,
             cep, rua, bairro, cidade,
             tipos_cliente ( nome_tipo ),
             canais_venda ( nome_canal )
@@ -140,18 +144,31 @@ export async function carregarClientes(supabase) {
         .order('nome', { ascending: true });
 
     if (error) {
-        console.error('Erro ao buscar clientes:', error);
-        tbody.innerHTML = `<tr><td colspan="10">Erro ao carregar clientes: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10">Erro ao carregar: ${error.message}</td></tr>`;
         return;
     }
-    if (clientes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10">Nenhum cliente ativo cadastrado.</td></tr>';
+
+    // 2. Filtra no Javascript (Nome, CPF ou Telefone)
+    let listaFiltrada = clientes || [];
+
+    if (termoBusca && termoBusca.trim() !== '') {
+        const termo = termoBusca.toLowerCase().trim();
+        listaFiltrada = listaFiltrada.filter(c => {
+            const matchNome = c.nome && c.nome.toLowerCase().includes(termo);
+            const matchCpf = c.cpf && c.cpf.includes(termo);
+            const matchTel = c.telefone && c.telefone.includes(termo);
+            return matchNome || matchCpf || matchTel;
+        });
+    }
+
+    if (listaFiltrada.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10">Nenhum cliente encontrado.</td></tr>';
         return;
     }
 
     tbody.innerHTML = ''; 
     
-    clientes.forEach(cliente => {
+    listaFiltrada.forEach(cliente => {
         const tr = document.createElement('tr');
         const nomeTipo = cliente.tipos_cliente ? cliente.tipos_cliente.nome_tipo : 'N/A';
         const nomeCanal = cliente.canais_venda ? cliente.canais_venda.nome_canal : 'N/A';
@@ -174,31 +191,21 @@ export async function carregarClientes(supabase) {
         tbody.appendChild(tr);
     });
 
-    // Ligar botões de Editar
+    // Ligar botões
     document.querySelectorAll('.btn-editar-cliente').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            abrirModalEdicaoCliente(supabase, id);
-        });
+        button.addEventListener('click', (e) => abrirModalEdicaoCliente(supabase, e.target.getAttribute('data-id')));
     });
 
-    // Lógica de "EXCLUIR" (Inativar)
     document.querySelectorAll('.btn-excluir-cliente').forEach(button => {
         button.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
-            if (confirm('Tem certeza que deseja INATIVAR este cliente? Ele não poderá ser usado em novos orçamentos, mas ficará no histórico.')) {
+            if (confirm('Tem certeza que deseja INATIVAR este cliente?')) {
                 e.target.disabled = true;
-                e.target.innerText = "Inativando...";
-                
-                const { error } = await supabase
-                    .from('clientes')
-                    .update({ ativo: false }) 
-                    .eq('id', id);
-                    
+                e.target.innerText = "...";
+                const { error } = await supabase.from('clientes').update({ ativo: false }).eq('id', id);
                 if (error) {
-                    alert('Erro ao inativar: ' + error.message);
+                    alert('Erro: ' + error.message);
                     e.target.disabled = false;
-                    e.target.innerText = "Excluir";
                 } else {
                     e.target.closest('tr').remove();
                 }
@@ -207,94 +214,62 @@ export async function carregarClientes(supabase) {
     });
 }
 
-// --- LÓGICA DO MODAL DE EDIÇÃO DE CLIENTE (MODIFICADA) ---
-
+// --- MODAL EDIÇÃO ---
 const modalFundoCliente = document.getElementById('modal-fundo-cliente');
 const formEditarCliente = document.getElementById('formEditarCliente');
 const mensagemEditarCliente = document.getElementById('mensagemEditarCliente');
 
-// Função para ABRIR o modal de cliente (MODIFICADA)
 async function abrirModalEdicaoCliente(supabase, id) {
     if(!formEditarCliente) return;
     formEditarCliente.reset();
     mensagemEditarCliente.textContent = '';
     
-    // --- MUDANÇA: Adicionamos os campos de endereço no SELECT ---
-    const { data: cliente, error } = await supabase
-        .from('clientes')
-        .select('*')
-        .eq('id', id)
-        .single(); 
+    const { data: cliente, error } = await supabase.from('clientes').select('*').eq('id', id).single(); 
+    if (error) return alert('Erro ao carregar cliente.');
 
-    if (error) {
-        alert('Não foi possível carregar o cliente.');
-        return;
-    }
-
-    // Preenche o formulário do modal
     document.getElementById('edit-cliente-id').value = cliente.id;
     document.getElementById('edit-nome').value = cliente.nome;
     document.getElementById('edit-cpf').value = cliente.cpf;
     document.getElementById('edit-telefone').value = cliente.telefone;
-    
-    // --- MUDANÇA: Preenche os campos de endereço ---
     document.getElementById('edit-cep').value = cliente.cep || '';
     document.getElementById('edit-rua').value = cliente.rua || '';
     document.getElementById('edit-bairro').value = cliente.bairro || '';
     document.getElementById('edit-cidade').value = cliente.cidade || '';
-    
-    // Preenche os selects
     document.getElementById('edit-id_tipo_cliente').value = cliente.id_tipo_cliente;
     document.getElementById('edit-id_canal_venda').value = cliente.id_canal_venda;
     
-    // Mostra o modal
     modalFundoCliente.classList.remove('hidden');
 }
 
-// Função para FECHAR o modal de cliente
-function fecharModalEdicaoCliente() {
-    modalFundoCliente.classList.add('hidden');
-}
+document.getElementById('btn-cancelar-edicao-cliente')?.addEventListener('click', () => modalFundoCliente.classList.add('hidden'));
 
-// "Liga" o formulário de SALVAR EDIÇÃO de cliente (MODIFICADA)
 export function initFormularioEditarCliente(supabase) {
     if (!formEditarCliente) return; 
-    
-    // Ligar botão de cancelar
-    document.getElementById('btn-cancelar-edicao-cliente').addEventListener('click', fecharModalEdicaoCliente);
     
     formEditarCliente.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btnSalvar = document.getElementById('btn-salvar-edicao-cliente');
-        btnSalvar.disabled = true;
-        btnSalvar.innerText = 'Salvando...';
+        btnSalvar.disabled = true; btnSalvar.innerText = 'Salvando...';
 
         const formData = new FormData(formEditarCliente);
-        const dadosAtualizados = Object.fromEntries(formData.entries());
-        const idCliente = parseInt(dadosAtualizados.id);
-
-        delete dadosAtualizados.id; 
+        const dados = Object.fromEntries(formData.entries());
+        const id = parseInt(dados.id);
+        delete dados.id; 
         
-        // Conversão de tipos
-        dadosAtualizados.id_tipo_cliente = parseInt(dadosAtualizados.id_tipo_cliente);
-        dadosAtualizados.id_canal_venda = parseInt(dadosAtualizados.id_canal_venda);
+        dados.id_tipo_cliente = parseInt(dados.id_tipo_cliente);
+        dados.id_canal_venda = parseInt(dados.id_canal_venda);
 
-        const { error } = await supabase
-            .from('clientes')
-            .update(dadosAtualizados)
-            .eq('id', idCliente); 
+        const { error } = await supabase.from('clientes').update(dados).eq('id', id); 
 
         if (error) {
             mensagemEditarCliente.style.color = "red";
             mensagemEditarCliente.innerText = "Erro: " + error.message;
         } else {
             mensagemEditarCliente.style.color = "green";
-            mensagemEditarCliente.innerText = "Cliente atualizado com sucesso!";
-            carregarClientes(supabase); // Recarrega a tabela
-            setTimeout(fecharModalEdicaoCliente, 2000);
+            mensagemEditarCliente.innerText = "Cliente atualizado!";
+            carregarClientes(supabase);
+            setTimeout(() => modalFundoCliente.classList.add('hidden'), 2000);
         }
-
-        btnSalvar.disabled = false;
-        btnSalvar.innerText = 'Salvar Alterações';
+        btnSalvar.disabled = false; btnSalvar.innerText = 'Salvar Alterações';
     });
 }

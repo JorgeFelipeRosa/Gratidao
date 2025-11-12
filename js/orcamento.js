@@ -1,22 +1,21 @@
 ﻿// js/orcamento.js
 
-// Este array vai guardar os itens na tela (nossa "lista de compras" temporária)
+// Array para itens temporários na criação
 let itensDoOrcamento = [];
 let totalOrcamento = 0;
 
-// --- Estilos dos botões da tabela ---
+// --- Estilos dos botões ---
 const estiloBotaoExcluir = `
-    background: #e74c3c; /* Vermelho */
-    color: white;
-    border: none;
+    background: rgba(226, 88, 88, 0.15); 
+    color: #E25858; 
+    border: 1px solid #E25858;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     margin-left: 5px;
 `;
 
-// --- NOVO: Função para carregar menus de opções ATIVAS ---
-// (clientes, produtos, etc.)
+// --- Função Auxiliar: Carregar Menus ---
 async function carregarMenuAtivo(supabase, idElemento, nomeTabela, nomeColuna) {
     const selectMenu = document.getElementById(idElemento);
     if (!selectMenu) return; 
@@ -24,7 +23,7 @@ async function carregarMenuAtivo(supabase, idElemento, nomeTabela, nomeColuna) {
     const { data, error } = await supabase
         .from(nomeTabela)
         .select(`id, ${nomeColuna}`)
-        .eq('ativo', true); // <-- FILTRO IMPORTANTE
+        .eq('ativo', true); 
 
     if (error) {
         console.error(`Erro ao buscar ${nomeTabela}:`, error);
@@ -37,14 +36,13 @@ async function carregarMenuAtivo(supabase, idElemento, nomeTabela, nomeColuna) {
     }
 }
 
-// Exportada para o main.js: Carrega os menus da tela
+// Exportada: Carrega os menus da tela
 export async function carregarOpcoesOrcamento(supabase) {
-    // --- MUDANÇA: Chama a nova função filtrada ---
     carregarMenuAtivo(supabase, 'select-cliente-orcamento', 'clientes', 'nome');
     carregarMenuAtivo(supabase, 'select-produto-orcamento', 'produtos', 'nome_produto');
 }
 
-// Função interna para atualizar a tabela HTML e o total
+// Função interna para atualizar a tabela de ITENS (na criação)
 function renderizarTabelaItens() {
     const tbody = document.getElementById('corpoTabelaItensOrcamento');
     const elTotal = document.getElementById('total-orcamento');
@@ -62,7 +60,7 @@ function renderizarTabelaItens() {
             <td>R$ ${item.preco_unitario_negociado.toFixed(2)}</td>
             <td>${item.medida}</td>
             <td>
-                <button type="button" class="btn-excluir-item-temp" data-index="${index}">
+                <button type="button" class="btn-excluir-item-temp" data-index="${index}" style="${estiloBotaoExcluir}">
                     Excluir
                 </button>
             </td>
@@ -70,10 +68,8 @@ function renderizarTabelaItens() {
         tbody.appendChild(tr);
     });
 
-    // Atualiza o total na tela
     elTotal.textContent = `Total: R$ ${totalOrcamento.toFixed(2)}`;
 
-    // Adiciona "ouvintes" aos novos botões de excluir
     document.querySelectorAll('.btn-excluir-item-temp').forEach(button => {
         button.addEventListener('click', (e) => {
             const indexParaExcluir = parseInt(e.target.getAttribute('data-index'));
@@ -83,7 +79,7 @@ function renderizarTabelaItens() {
     });
 }
 
-// Exportada para o main.js: "Liga" o formulário de SALVAR
+// Exportada: Inicializa o formulário de Criação
 export function initFormularioOrcamento(supabase) {
     const formOrcamento = document.getElementById('formOrcamento');
     if (!formOrcamento) return;
@@ -92,7 +88,7 @@ export function initFormularioOrcamento(supabase) {
     const btnSalvarOrcamento = document.getElementById('btnSalvarOrcamento');
     const mensagemOrcamento = document.getElementById('mensagemOrcamento');
     
-    // --- LÓGICA DE ADICIONAR ITEM ---
+    // Adicionar Item
     btnAddItem.addEventListener('click', () => {
         const selectProduto = document.getElementById('select-produto-orcamento');
         const produtoId = parseInt(selectProduto.value);
@@ -103,7 +99,7 @@ export function initFormularioOrcamento(supabase) {
         const medida = document.getElementById('medida-item-orcamento').value;
 
         if (!produtoId || isNaN(quantidade) || isNaN(preco) || preco <= 0) {
-            alert('Por favor, preencha o Produto, Quantidade e um Preço válido.');
+            alert('Preencha Produto, Quantidade e Preço.');
             return;
         }
 
@@ -124,14 +120,11 @@ export function initFormularioOrcamento(supabase) {
         document.getElementById('medida-item-orcamento').value = "";
     });
 
-    // --- LÓGICA DE SALVAR O ORÇAMENTO COMPLETO ---
+    // Salvar Orçamento
     formOrcamento.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        if (itensDoOrcamento.length === 0) {
-            alert('Você precisa adicionar pelo menos um item ao orçamento.');
-            return;
-        }
+        if (itensDoOrcamento.length === 0) return alert('Adicione itens ao orçamento.');
 
         btnSalvarOrcamento.disabled = true;
         btnSalvarOrcamento.innerText = 'Salvando...';
@@ -146,27 +139,18 @@ export function initFormularioOrcamento(supabase) {
                 observacoes: document.getElementById('obs-orcamento').value,
                 valor_total_orcamento: totalOrcamento,
                 id_status_orcamento: idStatusPendentePadrao,
-                ativo: true // Salva como ativo
+                ativo: true 
             };
 
             if (isNaN(dadosCapa.id_cliente) || !dadosCapa.data_validade_orcamento) {
-                throw new Error("Cliente e Data de Validade são obrigatórios.");
+                throw new Error("Cliente e Data são obrigatórios.");
             }
 
-            const { data: capaSalva, error: erroCapa } = await supabase
-                .from('orcamentos_capa')
-                .insert(dadosCapa)
-                .select()
-                .single();
-
-            if (erroCapa) {
-                throw new Error("Erro ao salvar a capa: " + erroCapa.message);
-            }
-
-            const idOrcamentoCapa = capaSalva.id;
+            const { data: capaSalva, error: erroCapa } = await supabase.from('orcamentos_capa').insert(dadosCapa).select().single();
+            if (erroCapa) throw new Error("Erro na capa: " + erroCapa.message);
 
             const itensParaSalvar = itensDoOrcamento.map(item => ({
-                id_orcamento_capa: idOrcamentoCapa,
+                id_orcamento_capa: capaSalva.id,
                 id_produto: item.id_produto,
                 quantidade: item.quantidade,
                 preco_unitario_negociado: item.preco_unitario_negociado,
@@ -174,17 +158,15 @@ export function initFormularioOrcamento(supabase) {
                 observacoes_item: item.observacoes_item
             }));
 
-            const { error: erroItens } = await supabase
-                .from('orcamentos_item')
-                .insert(itensParaSalvar);
+            const { error: erroItens } = await supabase.from('orcamentos_item').insert(itensParaSalvar);
 
             if (erroItens) {
-                await supabase.from('orcamentos_capa').delete().eq('id', idOrcamentoCapa);
-                throw new Error("Erro ao salvar os itens (capa revertida): " + erroItens.message);
+                await supabase.from('orcamentos_capa').delete().eq('id', capaSalva.id);
+                throw new Error("Erro nos itens: " + erroItens.message);
             }
 
             mensagemOrcamento.style.color = 'green';
-            mensagemOrcamento.textContent = `Orçamento (ID: ${idOrcamentoCapa}) salvo com sucesso!`;
+            mensagemOrcamento.textContent = `Orçamento #${capaSalva.id} salvo!`;
             
             formOrcamento.reset();
             itensDoOrcamento = [];
@@ -192,7 +174,7 @@ export function initFormularioOrcamento(supabase) {
             setTimeout(() => { mensagemOrcamento.textContent = ''; }, 5000);
 
         } catch (error) {
-            console.error('Erro no processo de salvar orçamento:', error);
+            console.error(error);
             mensagemOrcamento.style.color = 'red';
             mensagemOrcamento.textContent = error.message;
         } finally {
@@ -202,14 +184,38 @@ export function initFormularioOrcamento(supabase) {
     });
 }
 
+// --- NOVO: Inicializa a Busca de Orçamentos ---
+export function initFuncionalidadeBuscaOrcamento(supabase) {
+    const btnBuscar = document.getElementById('btn-busca-orcamento');
+    const btnLimpar = document.getElementById('btn-limpar-busca-orcamento');
+    const inputBusca = document.getElementById('input-busca-orcamento');
 
-// --- LÓGICA DE CONSULTAR ORÇAMENTOS ---
-export async function carregarOrcamentos(supabase) {
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', () => {
+            carregarOrcamentos(supabase, inputBusca.value);
+        });
+    }
+    if (inputBusca) {
+        inputBusca.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') carregarOrcamentos(supabase, inputBusca.value);
+        });
+    }
+    if (btnLimpar) {
+        btnLimpar.addEventListener('click', () => {
+            inputBusca.value = '';
+            carregarOrcamentos(supabase, null);
+        });
+    }
+}
+
+// --- CONSULTAR ORÇAMENTOS (COM BUSCA) ---
+export async function carregarOrcamentos(supabase, termoBusca = null) {
     const tbody = document.getElementById('corpoTabelaOrcamentos');
     if (!tbody) return; 
 
-    tbody.innerHTML = '<tr><td colspan="7">Carregando orçamentos...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7">Buscando...</td></tr>';
 
+    // 1. Busca TODOS os orçamentos ativos
     const { data: orcamentos, error } = await supabase
         .from('orcamentos_capa')
         .select(`
@@ -218,27 +224,47 @@ export async function carregarOrcamentos(supabase) {
             clientes ( nome ),
             status_orcamento ( nome_status )
         `)
-        .eq('ativo', true) // SÓ MOSTRA ORÇAMENTOS ATIVOS
+        .eq('ativo', true) 
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error('Erro ao buscar orçamentos:', error);
-        tbody.innerHTML = `<tr><td colspan="7">Erro ao carregar orçamentos: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7">Erro: ${error.message}</td></tr>`;
         return;
     }
-    if (orcamentos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7">Nenhum orçamento ativo cadastrado.</td></tr>';
+
+    // 2. Filtra no Javascript
+    let listaFiltrada = orcamentos || [];
+
+    if (termoBusca && termoBusca.trim() !== '') {
+        const termo = termoBusca.toLowerCase().trim();
+        listaFiltrada = listaFiltrada.filter(orc => {
+            // Busca por ID
+            const matchId = orc.id.toString() === termo;
+            // Busca por Nome do Cliente
+            const matchNome = orc.clientes && orc.clientes.nome.toLowerCase().includes(termo);
+            
+            return matchId || matchNome;
+        });
+    }
+
+    if (listaFiltrada.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7">Nenhum orçamento encontrado.</td></tr>';
         return;
     }
 
     tbody.innerHTML = ''; 
     
-    orcamentos.forEach(orcamento => {
+    listaFiltrada.forEach(orcamento => {
         const tr = document.createElement('tr');
         
         const dataCriacao = new Date(orcamento.created_at).toLocaleDateString('pt-BR');
-        const [ano, mes, dia] = orcamento.data_validade_orcamento.split('-');
-        const dataValidade = `${dia}/${mes}/${ano}`;
+        // Formata data de validade que vem como YYYY-MM-DD
+        let dataValidade = 'N/A';
+        if(orcamento.data_validade_orcamento) {
+            const [ano, mes, dia] = orcamento.data_validade_orcamento.split('-');
+            dataValidade = `${dia}/${mes}/${ano}`;
+        }
+
         const nomeCliente = orcamento.clientes ? orcamento.clientes.nome : 'N/A';
         const valorTotal = orcamento.valor_total_orcamento.toFixed(2);
         const status = orcamento.status_orcamento ? orcamento.status_orcamento.nome_status : 'Sem status';
@@ -252,7 +278,7 @@ export async function carregarOrcamentos(supabase) {
             <td>${status}</td>
             <td>
                 <button class="btn-visualizar-orcamento" data-id="${orcamento.id}" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
-                    Visualizar
+                    Ver
                 </button>
                 ${status === 'Pendente' ? 
                     `<button class="btn-aprovar-orcamento" data-id="${orcamento.id}" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 5px;">
@@ -268,136 +294,86 @@ export async function carregarOrcamentos(supabase) {
         tbody.appendChild(tr);
     });
 
-    // LIGA OS BOTÕES "VISUALIZAR"
+    // RE-LIGAR OS EVENTOS DOS BOTÕES
+    attachOrcamentoEvents(supabase);
+}
+
+// Função auxiliar para ligar eventos da tabela
+function attachOrcamentoEvents(supabase) {
     document.querySelectorAll('.btn-visualizar-orcamento').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            abrirModalVisualizar(supabase, id);
-        });
+        button.addEventListener('click', (e) => abrirModalVisualizar(supabase, e.target.getAttribute('data-id')));
     });
 
-    // LIGA OS BOTÕES "APROVAR"
     document.querySelectorAll('.btn-aprovar-orcamento').forEach(button => {
         button.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
-            const idStatusAprovado = 2; 
+            if (!confirm(`Aprovar orçamento #${id}?`)) return;
 
-            if (!confirm(`Tem certeza que deseja APROVAR o orçamento #${id}?`)) {
-                return;
-            }
+            e.target.disabled = true; e.target.innerText = "...";
+            const { error } = await supabase.from('orcamentos_capa').update({ id_status_orcamento: 2 }).eq('id', id); // 2 = Aprovado
 
-            e.target.disabled = true;
-            e.target.innerText = "Aprovando...";
-
-            const { error } = await supabase
-                .from('orcamentos_capa')
-                .update({ id_status_orcamento: idStatusAprovado })
-                .eq('id', id);
-
-            if (error) {
-                alert('Erro ao aprovar: ' + error.message);
-                e.target.disabled = false;
-                e.target.innerText = "Aprovar";
-            } else {
-                carregarOrcamentos(supabase);
-            }
+            if (error) { alert('Erro: ' + error.message); e.target.disabled = false; } 
+            else { carregarOrcamentos(supabase); }
         });
     });
 
-    // LIGA OS BOTÕES "EXCLUIR" (INATIVAR)
     document.querySelectorAll('.btn-excluir-orcamento').forEach(button => {
         button.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
-            
-            if (confirm('Tem certeza que deseja OCULTAR este orçamento? Ele não poderá ser usado em novos pedidos.')) {
+            if (confirm('Ocultar este orçamento?')) {
                 e.target.disabled = true;
-                e.target.innerText = "Ocultando...";
-                
-                const { error } = await supabase
-                    .from('orcamentos_capa')
-                    .update({ ativo: false }) // <-- SETA 'ativo' PARA FALSO
-                    .eq('id', id);
-
-                if (error) {
-                    alert('Erro ao ocultar: ' + error.message);
-                    e.target.disabled = false;
-                    e.target.innerText = "Excluir";
-                } else {
-                    e.target.closest('tr').remove();
-                }
+                const { error } = await supabase.from('orcamentos_capa').update({ ativo: false }).eq('id', id);
+                if (error) { alert('Erro: ' + error.message); e.target.disabled = false; }
+                else { e.target.closest('tr').remove(); }
             }
         });
     });
 }
 
 
-// --- LÓGICA DO MODAL DE VISUALIZAÇÃO ---
+// --- MODAL VISUALIZAR ---
 const modalFundoVisualizar = document.getElementById('modal-fundo-visualizar');
 
 async function abrirModalVisualizar(supabase, orcamentoId) {
     if (!modalFundoVisualizar) return;
     
     document.getElementById('detalhe-orcamento-id').textContent = ` #${orcamentoId}`;
-    document.getElementById('detalhe-cliente-nome').textContent = 'Carregando...';
-    document.getElementById('detalhe-data-criacao').textContent = '...';
-    document.getElementById('detalhe-data-validade').textContent = '...';
-    document.getElementById('detalhe-valor-total').textContent = 'Total: R$ ...';
     const itensTbody = document.getElementById('corpoTabelaDetalhesItens');
-    itensTbody.innerHTML = '<tr><td colspan="4">Carregando itens...</td></tr>';
-
+    itensTbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
     modalFundoVisualizar.classList.remove('hidden');
 
     try {
-        // PASSO 1: Buscar a Capa
-        const { data: capa, error: erroCapa } = await supabase
-            .from('orcamentos_capa')
-            .select(`
-                created_at, data_validade_orcamento, valor_total_orcamento,
-                clientes ( nome )
-            `)
-            .eq('id', orcamentoId)
-            .single();
-        if (erroCapa) throw erroCapa;
+        const { data: capa } = await supabase.from('orcamentos_capa').select(`*, clientes ( nome )`).eq('id', orcamentoId).single();
+        const { data: itens } = await supabase.from('orcamentos_item').select(`*, produtos ( nome_produto )`).eq('id_orcamento_capa', orcamentoId);
 
-        // PASSO 2: Buscar os Itens
-        const { data: itens, error: erroItens } = await supabase
-            .from('orcamentos_item')
-            .select(`
-                quantidade, preco_unitario_negociado,
-                produtos ( nome_produto )
-            `)
-            .eq('id_orcamento_capa', orcamentoId);
-        if (erroItens) throw erroItens;
-
-        // PASSO 3: Preencher o modal
         const dataCriacao = new Date(capa.created_at).toLocaleDateString('pt-BR');
         const [ano, mes, dia] = capa.data_validade_orcamento.split('-');
-        const dataValidade = `${dia}/${mes}/${ano}`;
+        
         document.getElementById('detalhe-cliente-nome').textContent = capa.clientes.nome;
         document.getElementById('detalhe-data-criacao').textContent = dataCriacao;
-        document.getElementById('detalhe-data-validade').textContent = dataValidade;
+        document.getElementById('detalhe-data-validade').textContent = `${dia}/${mes}/${ano}`;
         document.getElementById('detalhe-valor-total').textContent = `Total: R$ ${capa.valor_total_orcamento.toFixed(2)}`;
 
         itensTbody.innerHTML = '';
         itens.forEach(item => {
-            const tr = document.createElement('tr');
             const subtotal = item.quantidade * item.preco_unitario_negociado;
-            tr.innerHTML = `
-                <td>${item.produtos.nome_produto}</td>
-                <td>${item.quantidade}</td>
-                <td>R$ ${item.preco_unitario_negociado.toFixed(2)}</td>
-                <td>R$ ${subtotal.toFixed(2)}</td>
+            itensTbody.innerHTML += `
+                <tr>
+                    <td>${item.produtos.nome_produto}</td>
+                    <td>${item.quantidade}</td>
+                    <td>R$ ${item.preco_unitario_negociado.toFixed(2)}</td>
+                    <td>R$ ${subtotal.toFixed(2)}</td>
+                </tr>
             `;
-            itensTbody.appendChild(tr);
         });
 
     } catch (error) {
-        console.error('Erro ao buscar detalhes do orçamento:', error);
-        alert(error.message);
-        fecharModalVisualizar();
+        console.error(error);
+        alert("Erro ao abrir detalhes.");
+        modalFundoVisualizar.classList.add('hidden');
     }
 }
 
-document.getElementById('btn-fechar-visualizar').addEventListener('click', () => {
+document.getElementById('btn-fechar-visualizar')?.addEventListener('click', () => {
     modalFundoVisualizar.classList.add('hidden');
 });

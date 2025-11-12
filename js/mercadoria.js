@@ -2,18 +2,18 @@
 
 // --- Estilos dos botões da tabela ---
 const estiloBotaoExcluir = `
-    background: #e74c3c; /* Vermelho */
-    color: white;
-    border: none;
+    background: rgba(226, 88, 88, 0.15); 
+    color: #E25858; 
+    border: 1px solid #E25858;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     margin-left: 5px;
 `;
 const estiloBotaoEditar = `
-    background: #ffc107; /* Amarelo */
-    color: #333;
-    border: none;
+    background: rgba(245, 197, 24, 0.15); 
+    color: #F5C518; 
+    border: 1px solid #F5C518;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
@@ -37,7 +37,6 @@ async function carregarMenu(supabase, idElemento, nomeTabela, nomeColuna) {
 
 // Exportada: Carrega os menus da tela "Cadastrar Matéria-Prima"
 export async function carregarOpcoesMercadoria(supabase) {
-    // Carrega todos os 4 menus de opções
     carregarMenu(supabase, 'mercadoria-categoria', 'categorias_mercadoria', 'nome_categoria');
     carregarMenu(supabase, 'mercadoria-unidade', 'unidades_medida', 'sigla_medida'); 
     carregarMenu(supabase, 'mercadoria-cor', 'cores_mercadoria', 'nome_cor');
@@ -81,7 +80,6 @@ export function initFormularioMercadoria(supabase) {
 
             if (error) throw error;
             
-            // Sucesso
             msgMercadoria.style.color = 'green';
             msgMercadoria.textContent = 'Matéria-prima salva com sucesso!';
             formMercadoria.reset();
@@ -98,15 +96,38 @@ export function initFormularioMercadoria(supabase) {
     });
 }
 
-// --- NOVO: LÓGICA DE CONSULTA DE MERCADORIAS ---
+// --- NOVO: Inicializa a Busca de Mercadorias ---
+export function initFuncionalidadeBuscaMercadoria(supabase) {
+    const btnBuscar = document.getElementById('btn-busca-mercadoria');
+    const btnLimpar = document.getElementById('btn-limpar-busca-mercadoria');
+    const inputBusca = document.getElementById('input-busca-mercadoria');
 
-// Exportada: Carrega a tabela de consulta de matérias-primas
-export async function carregarMercadorias(supabase) {
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', () => {
+            carregarMercadorias(supabase, inputBusca.value);
+        });
+    }
+    if (inputBusca) {
+        inputBusca.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') carregarMercadorias(supabase, inputBusca.value);
+        });
+    }
+    if (btnLimpar) {
+        btnLimpar.addEventListener('click', () => {
+            inputBusca.value = '';
+            carregarMercadorias(supabase, null);
+        });
+    }
+}
+
+// --- CONSULTAR MERCADORIAS (COM BUSCA) ---
+export async function carregarMercadorias(supabase, termoBusca = null) {
     const tbody = document.getElementById('corpoTabelaMercadorias');
     if (!tbody) return; 
 
-    tbody.innerHTML = '<tr><td colspan="6">Carregando matérias-primas...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6">Buscando...</td></tr>';
 
+    // 1. Busca TODAS as mercadorias
     const { data: mercadorias, error } = await supabase
         .from('mercadorias')
         .select(`
@@ -123,14 +144,25 @@ export async function carregarMercadorias(supabase) {
         tbody.innerHTML = `<tr><td colspan="6">Erro ao carregar: ${error.message}</td></tr>`;
         return;
     }
-    if (mercadorias.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6">Nenhuma matéria-prima cadastrada.</td></tr>';
+
+    // 2. Filtra no Javascript
+    let listaFiltrada = mercadorias || [];
+
+    if (termoBusca && termoBusca.trim() !== '') {
+        const termo = termoBusca.toLowerCase().trim();
+        listaFiltrada = listaFiltrada.filter(m => {
+            return m.nome_material.toLowerCase().includes(termo);
+        });
+    }
+
+    if (listaFiltrada.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">Nenhuma matéria-prima encontrada.</td></tr>';
         return;
     }
 
     tbody.innerHTML = ''; 
     
-    mercadorias.forEach(item => {
+    listaFiltrada.forEach(item => {
         const tr = document.createElement('tr');
         const unidade = item.unidades_medida ? item.unidades_medida.sigla_medida : 'N/A';
         const fornecedor = item.fornecedores ? item.fornecedores.nome_fornecedor : 'N/A';
@@ -153,15 +185,18 @@ export async function carregarMercadorias(supabase) {
         tbody.appendChild(tr);
     });
 
-    // Ligar botões de Editar
+    // Re-ligar eventos
+    attachMercadoriaEvents(supabase);
+}
+
+// Função auxiliar para ligar eventos
+function attachMercadoriaEvents(supabase) {
     document.querySelectorAll('.btn-editar-mercadoria').forEach(button => {
         button.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            abrirModalEditarMercadoria(supabase, id);
+            abrirModalEditarMercadoria(supabase, e.target.getAttribute('data-id'));
         });
     });
 
-    // Ligar botões de Excluir
     document.querySelectorAll('.btn-excluir-mercadoria').forEach(button => {
         button.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
@@ -179,38 +214,25 @@ export async function carregarMercadorias(supabase) {
     });
 }
 
-// --- NOVO: LÓGICA DO MODAL DE EDIÇÃO DE MERCADORIA ---
-
+// --- MODAL EDIÇÃO ---
 const modalFundoEditarMercadoria = document.getElementById('modal-fundo-editar-mercadoria');
 const formEditarMercadoria = document.getElementById('formEditarMercadoria');
 const mensagemEditarMercadoria = document.getElementById('mensagemEditarMercadoria');
 
-// Exportada: Carrega os menus do modal de EDIÇÃO
 export async function carregarOpcoesEditarMercadoria(supabase) {
     carregarMenu(supabase, 'edit-mercadoria-categoria', 'categorias_mercadoria', 'nome_categoria');
     carregarMenu(supabase, 'edit-mercadoria-unidade', 'unidades_medida', 'sigla_medida');
     carregarMenu(supabase, 'edit-mercadoria-fornecedor', 'fornecedores', 'nome_fornecedor');
 }
 
-// Função para ABRIR o modal de edição de mercadoria
 async function abrirModalEditarMercadoria(supabase, id) {
     if (!modalFundoEditarMercadoria) return;
-    
     formEditarMercadoria.reset();
     mensagemEditarMercadoria.textContent = '';
     
-    const { data: mercadoria, error } = await supabase
-        .from('mercadorias')
-        .select('*')
-        .eq('id', id)
-        .single(); 
+    const { data: mercadoria, error } = await supabase.from('mercadorias').select('*').eq('id', id).single(); 
+    if (error) return alert('Não foi possível carregar a matéria-prima.');
 
-    if (error) {
-        alert('Não foi possível carregar a matéria-prima.');
-        return;
-    }
-
-    // Preenche o formulário
     document.getElementById('edit-mercadoria-id').value = mercadoria.id;
     document.getElementById('edit-mercadoria-nome').value = mercadoria.nome_material;
     document.getElementById('edit-mercadoria-custo').value = mercadoria.valor_custo;
@@ -221,41 +243,27 @@ async function abrirModalEditarMercadoria(supabase, id) {
     modalFundoEditarMercadoria.classList.remove('hidden');
 }
 
-// Função para FECHAR o modal
-function fecharModalEditarMercadoria() {
-    modalFundoEditarMercadoria.classList.add('hidden');
-}
+document.getElementById('btn-cancelar-edicao-mercadoria')?.addEventListener('click', () => modalFundoEditarMercadoria.classList.add('hidden'));
 
-// "Liga" o formulário de SALVAR EDIÇÃO de mercadoria
 export function initFormularioEditarMercadoria(supabase) {
     if (!formEditarMercadoria) return; 
-    
-    // Ligar botão de cancelar
-    document.getElementById('btn-cancelar-edicao-mercadoria').addEventListener('click', fecharModalEditarMercadoria);
     
     formEditarMercadoria.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btnSalvar = document.getElementById('btn-salvar-edicao-mercadoria');
-        btnSalvar.disabled = true;
-        btnSalvar.innerText = 'Salvando...';
+        btnSalvar.disabled = true; btnSalvar.innerText = 'Salvando...';
 
         const formData = new FormData(formEditarMercadoria);
-        const dadosAtualizados = Object.fromEntries(formData.entries());
-        const idMercadoria = parseInt(dadosAtualizados.id);
+        const dados = Object.fromEntries(formData.entries());
+        const id = parseInt(dados.id);
+        delete dados.id; 
         
-        // Remove o ID do objeto
-        delete dadosAtualizados.id; 
-        
-        // Converte os tipos
-        dadosAtualizados.valor_custo = parseFloat(dadosAtualizados.valor_custo);
-        dadosAtualizados.id_categoria_mercadoria = parseInt(dadosAtualizados.id_categoria_mercadoria);
-        dadosAtualizados.id_unidade_medida = parseInt(dadosAtualizados.id_unidade_medida);
-        dadosAtualizados.id_fornecedor = parseInt(dadosAtualizados.id_fornecedor);
+        dados.valor_custo = parseFloat(dados.valor_custo);
+        dados.id_categoria_mercadoria = parseInt(dados.id_categoria_mercadoria);
+        dados.id_unidade_medida = parseInt(dados.id_unidade_medida);
+        dados.id_fornecedor = parseInt(dados.id_fornecedor);
 
-        const { error } = await supabase
-            .from('mercadorias')
-            .update(dadosAtualizados)
-            .eq('id', idMercadoria); 
+        const { error } = await supabase.from('mercadorias').update(dados).eq('id', id); 
 
         if (error) {
             mensagemEditarMercadoria.style.color = "red";
@@ -263,11 +271,9 @@ export function initFormularioEditarMercadoria(supabase) {
         } else {
             mensagemEditarMercadoria.style.color = "green";
             mensagemEditarMercadoria.innerText = "Matéria-prima atualizada!";
-            carregarMercadorias(supabase); // Recarrega a tabela
-            setTimeout(fecharModalEditarMercadoria, 2000);
+            carregarMercadorias(supabase);
+            setTimeout(() => modalFundoEditarMercadoria.classList.add('hidden'), 2000);
         }
-
-        btnSalvar.disabled = false;
-        btnSalvar.innerText = 'Salvar Alterações';
+        btnSalvar.disabled = false; btnSalvar.innerText = 'Salvar Alterações';
     });
 }

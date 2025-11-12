@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gratidão Gestão</title>
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link rel="stylesheet" href="css/style.css">
@@ -12,7 +16,6 @@
 <body>
 
     <div id="container-login">
-        
         <form id="formLogin" class="form-auth">
             <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-login">
             <p>Por favor, entre com suas credenciais.</p>
@@ -44,7 +47,6 @@
             <p id="auth-mensagem-signup"></p>
             <a href="#" id="link-toggle-login">Já tem uma conta? Faça o login</a>
         </form>
-
     </div>
 
     <div id="container-app">
@@ -52,28 +54,75 @@
             <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-menu">
             
             <ul>
-                <li data-target="tela-home">🏠 Home</li>
-                <li data-target="tela-cadastro-cliente">👤 Cadastrar Cliente</li>
-                <li data-target="tela-consulta-clientes">🔍 Consultar Clientes</li>
-                <li data-target="tela-cadastro-produto">📦 Cadastrar Produto</li>
-                <li data-target="tela-consulta-produtos">🔍 Consultar Produtos</li>
-                <li data-target="tela-cadastro-orcamento">📝 Novo Orçamento</li>
-                <li data-target="tela-consulta-orcamentos">🔍 Consultar Orçamentos</li>
-                <li data-target="tela-cadastro-pedido">🛒 Novo Pedido</li>
-                <li data-target="tela-consulta-pedidos">🔍 Consultar Pedidos</li>
-                <li data-target="tela-registro-consumo">🏭 Registrar Consumo</li>
-                <li data-target="tela-cadastro-mercadoria">🏭 Cad. Matéria-Prima</li>
-                <li data-target="tela-consulta-mercadoria">🔍 Cons. Matéria-Prima</li>
-                <li data-target="tela-gerenciar-listas">⚙️ Gerenciar Listas</li>
+                <li data-target="tela-home">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </li>
+                <li data-target="tela-cadastro-cliente">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Cadastrar Cliente</span>
+                </li>
+                <li data-target="tela-consulta-clientes">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Consultar Clientes</span>
+                </li>
+                <li data-target="tela-cadastro-produto">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Cadastrar Produto</span>
+                </li>
+                <li data-target="tela-consulta-produtos">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Consultar Produtos</span>
+                </li>
+                <li data-target="tela-cadastro-orcamento">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Novo Orçamento</span>
+                </li>
+                <li data-target="tela-consulta-orcamentos">
+                    <i class="fa-solid fa-magnifying-glass-dollar"></i>
+                    <span>Consultar Orçamentos</span>
+                </li>
+                <li data-target="tela-cadastro-pedido">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    <span>Novo Pedido</span>
+                </li>
+                <li data-target="tela-consulta-pedidos">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Consultar Pedidos</span>
+                </li>
+                <li data-target="tela-registro-consumo">
+                    <i class="fa-solid fa-industry"></i>
+                    <span>Registrar Consumo</span>
+                </li>
+                <li data-target="tela-cadastro-mercadoria">
+                    <i class="fa-solid fa-dolly"></i>
+                    <span>Cad. Matéria-Prima</span>
+                </li>
+                <li data-target="tela-consulta-mercadoria">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Cons. Matéria-Prima</span>
+                </li>
+                <li data-target="tela-gerenciar-listas">
+                    <i class="fa-solid fa-gears"></i>
+                    <span>Gerenciar Listas</span>
+                </li>
+                <li data-target="tela-configuracoes">
+                    <i class="fa-solid fa-building-user"></i>
+                    <span>Dados da Empresa</span>
+                </li>
             </ul>
+            
             <ul class="nav-bottom">
-                 <li id="btn-logout">🚪 Sair</li>
+                 <li id="btn-logout">
+                     <i class="fa-solid fa-right-from-bracket"></i>
+                     <span>Sair</span>
+                 </li>
             </ul>
         </nav>
 
         <div class="mobile-header">
             <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-mobile">
-            <button id="btn-hamburger">☰</button>
+            <button id="btn-hamburger"><i class="fa-solid fa-bars"></i></button>
         </div>
 
         <main class="conteudo-principal">
@@ -83,22 +132,33 @@
                 <p style="text-align: center; margin-top: 20px;">Selecione uma opção no menu ao lado para começar.</p>
             </section>
 
+            <section id="tela-configuracoes" class="tela">
+                <h2>Dados da Empresa (Para Recibos)</h2>
+                <form id="formConfiguracoes">
+                    <input type="hidden" id="config-id" name="id">
+                    <div><label>Nome da Empresa (Título):</label><input type="text" name="nome_empresa" id="conf-nome" required></div>
+                    <div><label>CNPJ / CPF:</label><input type="text" name="cnpj" id="conf-cnpj"></div>
+                    <div><label>Endereço Completo:</label><input type="text" name="endereco" id="conf-endereco"></div>
+                    <div><label>Telefone / WhatsApp:</label><input type="text" name="telefone" id="conf-telefone"></div>
+                    <div><label>Nome do Proprietário (Assinatura):</label><input type="text" name="nome_proprietario" id="conf-dono"></div>
+                    
+                    <button type="submit">Salvar Configurações</button>
+                    <div id="mensagemConfig"></div>
+                </form>
+            </section>
+
             <section id="tela-cadastro-cliente" class="tela">
                 <form id="formCliente">
                     <h2>Cadastro de Cliente</h2>
-                    
                     <div><label for="nome">Nome:</label><input type="text" id="nome" name="nome" required></div>
                     <div><label for="cpf">CPF:</label><input type="text" id="cpf" name="cpf" required></div>
                     <div><label for="telefone">Telefone:</label><input type="text" id="telefone" name="telefone"></div>
-                    
                     <div><label for="cep">CEP:</label><input type="text" id="cep" name="cep"></div>
                     <div><label for="rua">Rua:</label><input type="text" id="rua" name="rua"></div>
                     <div><label for="bairro">Bairro:</label><input type="text" id="bairro" name="bairro"></div>
                     <div><label for="cidade">Cidade:</label><input type="text" id="cidade" name="cidade"></div>
-                    
                     <div><label for="tipoCliente">Tipo de Cliente:</label><select id="tipoCliente" name="id_tipo_cliente" required><option value="">Carregando...</option></select></div>
                     <div><label for="canalVenda">Canal de Venda:</label><select id="canalVenda" name="id_canal_venda" required><option value="">Carregando...</option></select></div>
-                    
                     <button type="submit" id="btnSalvarCliente">Salvar Cliente</button>
                     <div id="mensagem"></div>
                 </form>
@@ -106,6 +166,11 @@
 
             <section id="tela-consulta-clientes" class="tela">
                 <h2>Consultar Clientes</h2>
+                <div class="search-container">
+                    <input type="text" id="input-busca-cliente" placeholder="Busque por Nome, CPF ou Telefone...">
+                    <button id="btn-busca-cliente"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
+                    <button id="btn-limpar-busca-cliente"><i class="fa-solid fa-eraser"></i> Limpar</button>
+                </div>
                 <div class="tabela-responsiva">
                     <table id="tabelaClientes">
                         <thead>
@@ -138,6 +203,7 @@
                     <div><label for="id_linha_produto">Linha:</label><select id="id_linha_produto" name="id_linha_produto" required><option value="">Carregando...</option></select></div>
                     <div><label for="id_comodo">Cômodo:</label><select id="id_comodo" name="id_comodo" required><option value="">Carregando...</option></select></div>
                     <div><label for="id_co">Opção "Co":</label><select id="id_co" name="id_co" required><option value="">Carregando...</option></select></div>
+                    <div><label for="id_unidade_medida">Unidade de Medida Padrão:</label><select id="id_unidade_medida" name="id_unidade_medida" required><option value="">Carregando...</option></select></div>
                     <button type="submit" id="btnSalvarProduto">Salvar Produto</button>
                     <div id="mensagemProduto"></div>
                 </form>
@@ -145,6 +211,11 @@
             
             <section id="tela-consulta-produtos" class="tela">
                 <h2>Consultar Produtos</h2>
+                <div class="search-container">
+                    <input type="text" id="input-busca-produto" placeholder="Busque por Nome do Produto...">
+                    <button id="btn-busca-produto"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
+                    <button id="btn-limpar-busca-produto"><i class="fa-solid fa-eraser"></i> Limpar</button>
+                </div>
                 <div class="tabela-responsiva">
                     <table id="tabelaProdutos">
                         <thead><tr><th>Nome do Produto</th><th>Preço Médio</th><th>Categoria</th><th>Ações</th></tr></thead>
@@ -186,6 +257,11 @@
             
             <section id="tela-consulta-orcamentos" class="tela">
                 <h2>Consultar Orçamentos</h2>
+                <div class="search-container">
+                    <input type="text" id="input-busca-orcamento" placeholder="Busque por Nome do Cliente ou ID...">
+                    <button id="btn-busca-orcamento"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
+                    <button id="btn-limpar-busca-orcamento"><i class="fa-solid fa-eraser"></i> Limpar</button>
+                </div>
                 <div class="tabela-responsiva">
                     <table id="tabelaOrcamentos">
                         <thead><tr><th>ID</th><th>Data Criação</th><th>Cliente</th><th>Data Validade</th><th>Valor Total</th><th>Status</th><th>Ações</th></tr></thead>
@@ -233,6 +309,11 @@
 
             <section id="tela-consulta-pedidos" class="tela">
                 <h2>Consultar Pedidos (Gestão Financeira)</h2>
+                <div class="search-container">
+                    <input type="text" id="input-busca-pedido" placeholder="Digite o Nome do Cliente...">
+                    <button id="btn-busca-pedido"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
+                    <button id="btn-limpar-busca"><i class="fa-solid fa-eraser"></i> Limpar</button>
+                </div>
                 <div class="tabela-responsiva">
                     <table id="tabelaPedidos">
                         <thead>
@@ -267,15 +348,20 @@
                             </select>
                         </div>
                     </fieldset>
+                    
                     <fieldset class="form-grupo">
                         <legend>2. Material Utilizado</legend>
+                        
                         <div>
-                            <label for="consumo-select-mercadoria">Matéria-Prima:</label>
-                            <select id="consumo-select-mercadoria" name="id_mercadoria_usada" required>
-                                <option value="">Carregando matérias-primas...</option>
-                            </select>
+                            <label>Matéria-Prima:</label>
+                            <div class="wrapper-autocomplete">
+                                <input type="text" id="input-busca-mercadoria-consumo" placeholder="Digite para buscar o material..." autocomplete="off" required>
+                                <ul id="lista-resultados-mercadoria" class="lista-sugestoes"></ul>
+                                <input type="hidden" name="id_mercadoria_usada" id="hidden-id-mercadoria">
+                            </div>
                         </div>
-                        <div class="item-adder-form" style="grid-template-columns: 1fr 1fr 1fr;">
+
+                        <div class="item-adder-form" style="grid-template-columns: 1fr 1fr;">
                             <div>
                                 <label for="consumo-qtd">Quantidade Usada:</label>
                                 <input type="number" id="consumo-qtd" name="quantidade_usada" step="any" required>
@@ -286,6 +372,7 @@
                             </div>
                         </div>
                     </fieldset>
+
                     <fieldset class="form-grupo">
                         <legend>3. Detalhes</legend>
                         <div>
@@ -314,6 +401,11 @@
             
             <section id="tela-consulta-mercadoria" class="tela">
                 <h2>Consultar Matéria-Prima (Estoque)</h2>
+                <div class="search-container">
+                    <input type="text" id="input-busca-mercadoria" placeholder="Busque pelo Nome do Material...">
+                    <button id="btn-busca-mercadoria"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
+                    <button id="btn-limpar-busca-mercadoria"><i class="fa-solid fa-eraser"></i> Limpar</button>
+                </div>
                 <div class="tabela-responsiva">
                     <table id="tabelaMercadorias">
                         <thead><tr><th>ID</th><th>Material</th><th>Custo</th><th>Unid.</th><th>Fornecedor</th><th>Ações</th></tr></thead>
@@ -379,8 +471,9 @@
                 <div><label for="edit-nome_produto">Nome do Produto:</label><input type="text" id="edit-nome_produto" name="nome_produto" required></div>
                 <div><label for="edit-preco_medio">Preço Médio:</label><input type="number" id="edit-preco_medio" name="preco_medio" step="0.01" required></div>
                 <div><label for="edit-id_categoria_produto">Categoria:</label><select id="edit-id_categoria_produto" name="id_categoria_produto" required><option value="">Carregando...</option></select></div>
+                <div><label for="edit-id_unidade_medida">Unidade de Medida Padrão:</label><select id="edit-id_unidade_medida" name="id_unidade_medida" required><option value="">Carregando...</option></select></div>
                 <div class="modal-botoes">
-                    <button type="button" id="btn-cancelar-edicao">Cancelar</button>
+                    <button type="button" id="btn-cancelar-edicao" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-edicao">Salvar Alterações</button>
                 </div>
                 <div id="mensagemEditarProduto"></div>
@@ -393,21 +486,17 @@
             <h2>Editar Cliente</h2>
             <form id="formEditarCliente">
                 <input type="hidden" id="edit-cliente-id" name="id">
-                
                 <div><label for="edit-nome">Nome:</label><input type="text" id="edit-nome" name="nome" required></div>
                 <div><label for="edit-cpf">CPF:</label><input type="text" id="edit-cpf" name="cpf" required></div>
                 <div><label for="edit-telefone">Telefone:</label><input type="text" id="edit-telefone" name="telefone"></div>
-                
                 <div><label for="edit-cep">CEP:</label><input type="text" id="edit-cep" name="cep"></div>
                 <div><label for="edit-rua">Rua:</label><input type="text" id="edit-rua" name="rua"></div>
                 <div><label for="edit-bairro">Bairro:</label><input type="text" id="edit-bairro" name="bairro"></div>
                 <div><label for="edit-cidade">Cidade:</label><input type="text" id="edit-cidade" name="cidade"></div>
-                
                 <div><label for="edit-id_tipo_cliente">Tipo de Cliente:</label><select id="edit-id_tipo_cliente" name="id_tipo_cliente" required><option value="">Carregando...</option></select></div>
                 <div><label for="edit-id_canal_venda">Canal de Venda:</label><select id="edit-id_canal_venda" name="id_canal_venda" required><option value="">Carregando...</option></select></div>
-                
                 <div class="modal-botoes">
-                    <button type="button" id="btn-cancelar-edicao-cliente">Cancelar</button>
+                    <button type="button" id="btn-cancelar-edicao-cliente" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-edicao-cliente">Salvar Alterações</button>
                 </div>
                 <div id="mensagemEditarCliente"></div>
@@ -519,7 +608,7 @@
                 <div><label for="edit-mercadoria-unidade">Unidade de Medida:</label><select id="edit-mercadoria-unidade" name="id_unidade_medida" required><option value="">Carregando...</option></select></div>
                 <div><label for="edit-mercadoria-fornecedor">Fornecedor:</label><select id="edit-mercadoria-fornecedor" name="id_fornecedor" required><option value="">Carregando...</option></select></div>
                 <div class="modal-botoes">
-                    <button type="button" id="btn-cancelar-edicao-mercadoria">Cancelar</button>
+                    <button type="button" id="btn-cancelar-edicao-mercadoria" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-edicao-mercadoria">Salvar Alterações</button>
                 </div>
                 <div id="mensagemEditarMercadoria"></div>
@@ -527,5 +616,62 @@
         </div>
     </div>
     
+    <div id="area-recibo" class="hidden-screen">
+        <div class="recibo-container">
+            <div class="recibo-header">
+                <img src="img/logo.jpg" alt="Logo" class="recibo-logo">
+                <div class="recibo-empresa">
+                    <h2 id="print-empresa-nome">NOME DA EMPRESA</h2>
+                    <p id="print-empresa-doc">CNPJ: ...</p>
+                    <p id="print-empresa-end">Endereço...</p>
+                    <p id="print-empresa-tel">Tel: ...</p>
+                </div>
+            </div>
+            
+            <hr class="recibo-divisor">
+            
+            <h1 class="recibo-titulo">RECIBO DE PAGAMENTO</h1>
+            
+            <div class="recibo-corpo">
+                <p>Recebemos de: <strong><span id="recibo-cliente-nome">CLIENTE</span></strong></p>
+                <p>A importância de: <strong>R$ <span id="recibo-valor">0,00</span></strong></p>
+                <p>Forma de Pagamento: <span id="recibo-forma">...</span></p>
+                <p>Referente à entrada/parcela do <strong>Pedido #<span id="recibo-pedido-id">000</span></strong>.</p>
+            </div>
+
+            <div class="recibo-detalhes">
+                <h3>Resumo do Pedido</h3>
+                <table class="recibo-tabela-itens">
+                    <thead>
+                        <tr>
+                            <th>Item / Produto</th>
+                            <th>Qtd</th>
+                            <th>Valor Unit.</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recibo-tabela-body">
+                        </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: right; font-weight: bold;">TOTAL DO PEDIDO:</td>
+                            <td id="recibo-total-pedido">R$ 0,00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="recibo-data-local">
+                <p>Itapoá/SC, <span id="recibo-data-extenso">Data</span></p>
+            </div>
+            
+            <div class="recibo-assinatura">
+                <div class="linha-assinatura"></div>
+                <p id="print-empresa-dono">Assinatura</p>
+                <p style="font-size: 0.8rem;">Gratidão Arte em Porcelanato</p>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

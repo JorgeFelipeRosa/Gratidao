@@ -2,35 +2,28 @@
 
 // --- Estilos dos botões da tabela ---
 const estiloBotaoExcluir = `
-    background: #e74c3c; /* Vermelho */
-    color: white;
-    border: none;
+    background: rgba(226, 88, 88, 0.15); 
+    color: #E25858; 
+    border: 1px solid #E25858;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     margin-left: 5px;
 `;
 const estiloBotaoEditar = `
-    background: #ffc107; /* Amarelo */
-    color: #333;
-    border: none;
+    background: rgba(245, 197, 24, 0.15); 
+    color: #F5C518; 
+    border: 1px solid #F5C518;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
 `;
 
-// Função interna para carregar os menus de opções
-async function carregarMenu(supabase, idElemento, nomeTabela, nomeColuna) {
+// Função interna unificada para carregar menus de opções
+async function carregarMenuOpcoes(supabase, idElemento, nomeTabela, nomeColuna) {
     const selectMenu = document.getElementById(idElemento);
     if (!selectMenu) return; 
-    
-    // --- MUDANÇA: Adicionado filtro .eq('ativo', true) ---
-    // (Garante que itens inativos não apareçam em menus futuros)
-    const { data, error } = await supabase
-        .from(nomeTabela)
-        .select(`id, ${nomeColuna}`)
-        .eq('ativo', true); // <-- NOVO FILTRO AQUI
-
+    const { data, error } = await supabase.from(nomeTabela).select(`id, ${nomeColuna}`);
     if (error) {
         console.error(`Erro ao buscar ${nomeTabela}:`, error);
         selectMenu.innerHTML = `<option value="">Erro</option>`;
@@ -42,117 +35,13 @@ async function carregarMenu(supabase, idElemento, nomeTabela, nomeColuna) {
     }
 }
 
-// Exportada: Carrega a tabela de consulta de produtos
-export async function carregarProdutos(supabase) {
-    const tbody = document.getElementById('corpoTabelaProdutos');
-    if (!tbody) return; 
-
-    tbody.innerHTML = '<tr><td colspan="4">Carregando produtos...</td></tr>';
-
-    // --- MUDANÇA: Adicionado filtro .eq('ativo', true) ---
-    const { data: produtos, error } = await supabase
-        .from('produtos')
-        .select(`
-            id,
-            nome_produto,
-            preco_medio,
-            categorias_produto ( nome_categoria )
-        `)
-        .eq('ativo', true) // <-- SÓ MOSTRA PRODUTOS ATIVOS
-        .order('nome_produto', { ascending: true });
-
-    if (error) {
-        console.error('Erro ao buscar produtos:', error);
-        tbody.innerHTML = `<tr><td colspan="4">Erro ao carregar produtos: ${error.message}</td></tr>`;
-        return;
-    }
-    if (produtos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4">Nenhum produto ativo cadastrado.</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = ''; 
-    
-    produtos.forEach(produto => {
-        const tr = document.createElement('tr');
-        const nomeCategoria = produto.categorias_produto ? produto.categorias_produto.nome_categoria : 'Sem categoria';
-        
-        tr.innerHTML = `
-            <td>${produto.nome_produto}</td>
-            <td>R$ ${produto.preco_medio}</td>
-            <td>${nomeCategoria}</td>
-            <td>
-                <button class="btn-editar" data-id="${produto.id}" style="${estiloBotaoEditar}">Editar</button>
-                <button class="btn-excluir" data-id="${produto.id}" style="${estiloBotaoExcluir}">Excluir</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-
-    // Lógica de clique para EDITAR
-    document.querySelectorAll('.btn-editar').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            abrirModalEdicao(supabase, id);
-        });
-    });
-
-    // --- MUDANÇA: LÓGICA DE "EXCLUIR" AGORA FAZ "INATIVAR" ---
-    document.querySelectorAll('.btn-excluir').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            const id = e.target.getAttribute('data-id');
-            
-            if (confirm('Tem certeza que deseja INATIVAR este produto? Ele não poderá ser usado em novos orçamentos, mas ficará no histórico.')) {
-                e.target.disabled = true;
-                e.target.innerText = "Inativando...";
-
-                // O comando mudou de .delete() para .update()
-                const { error } = await supabase
-                    .from('produtos')
-                    .update({ ativo: false }) // <-- SETA 'ativo' PARA FALSO
-                    .eq('id', id);
-
-                if (error) {
-                    // O erro de "foreign key" (chave estrangeira) NÃO vai mais acontecer
-                    console.error('Erro ao inativar produto:', error);
-                    alert('Erro ao inativar: ' + error.message);
-                    e.target.disabled = false;
-                    e.target.innerText = "Excluir";
-                } else {
-                    // Sucesso! Remove a linha da tabela na tela
-                    e.target.closest('tr').remove();
-                }
-            }
-        });
-    });
-}
-
 // Exportada: Carrega as opções do formulário de CADASTRO de produto
 export async function carregarOpcoesCadastroProduto(supabase) {
-    // (Esta função é interna, então usamos a 'carregarMenu' genérica)
-    // A função 'carregarMenu' genérica agora filtra por 'ativo = true'
-    // Mas as tabelas de opções (categoria, linha, etc.) não têm 'ativo'.
-    
-    // --- CORREÇÃO: Vamos criar uma carregarMenu específica ---
-    async function carregarMenuOpcoes(supabase, idElemento, nomeTabela, nomeColuna) {
-        const selectMenu = document.getElementById(idElemento);
-        if (!selectMenu) return; 
-        const { data, error } = await supabase.from(nomeTabela).select(`id, ${nomeColuna}`);
-        if (error) {
-            console.error(`Erro ao buscar ${nomeTabela}:`, error);
-            selectMenu.innerHTML = `<option value="">Erro</option>`;
-        } else {
-            selectMenu.innerHTML = `<option value="">Selecione</option>`;
-            data.forEach(item => {
-                selectMenu.innerHTML += `<option value="${item.id}">${item[nomeColuna]}</option>`;
-            });
-        }
-    }
-    
     carregarMenuOpcoes(supabase, 'id_categoria_produto', 'categorias_produto', 'nome_categoria');
     carregarMenuOpcoes(supabase, 'id_linha_produto', 'linhas_produto', 'nome_linha');
     carregarMenuOpcoes(supabase, 'id_comodo', 'comodos', 'nome_comodo');
     carregarMenuOpcoes(supabase, 'id_co', 'opcoes_co', 'nome_co');
+    carregarMenuOpcoes(supabase, 'id_unidade_medida', 'unidades_medida', 'sigla_medida'); 
 }
 
 // Exportada: "Liga" o formulário de salvar produto (CADASTRO)
@@ -176,7 +65,7 @@ export function initFormularioProduto(supabase) {
         dadosProduto.id_linha_produto = parseInt(dadosProduto.id_linha_produto);
         dadosProduto.id_comodo = parseInt(dadosProduto.id_comodo);
         dadosProduto.id_co = parseInt(dadosProduto.id_co);
-        // O produto já nasce como 'ativo = true' por causa do DEFAULT do BD
+        dadosProduto.id_unidade_medida = parseInt(dadosProduto.id_unidade_medida); 
 
         const { error } = await supabase.from('produtos').insert([ dadosProduto ]); 
 
@@ -198,106 +87,176 @@ export function initFormularioProduto(supabase) {
     });
 }
 
+// --- NOVO: Inicializa a Busca de Produtos ---
+export function initFuncionalidadeBuscaProduto(supabase) {
+    const btnBuscar = document.getElementById('btn-busca-produto');
+    const btnLimpar = document.getElementById('btn-limpar-busca-produto');
+    const inputBusca = document.getElementById('input-busca-produto');
 
-// --- LÓGICA DO MODAL DE EDIÇÃO DE PRODUTO ---
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', () => {
+            carregarProdutos(supabase, inputBusca.value);
+        });
+    }
+    if (inputBusca) {
+        inputBusca.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') carregarProdutos(supabase, inputBusca.value);
+        });
+    }
+    if (btnLimpar) {
+        btnLimpar.addEventListener('click', () => {
+            inputBusca.value = '';
+            carregarProdutos(supabase, null);
+        });
+    }
+}
 
+// --- CONSULTAR PRODUTOS (COM BUSCA) ---
+export async function carregarProdutos(supabase, termoBusca = null) {
+    const tbody = document.getElementById('corpoTabelaProdutos');
+    if (!tbody) return; 
+
+    tbody.innerHTML = '<tr><td colspan="4">Buscando...</td></tr>';
+
+    // 1. Busca TODOS os produtos ativos
+    const { data: produtos, error } = await supabase
+        .from('produtos')
+        .select(`
+            id,
+            nome_produto,
+            preco_medio,
+            categorias_produto ( nome_categoria )
+        `)
+        .eq('ativo', true) 
+        .order('nome_produto', { ascending: true });
+
+    if (error) {
+        console.error('Erro ao buscar produtos:', error);
+        tbody.innerHTML = `<tr><td colspan="4">Erro ao carregar: ${error.message}</td></tr>`;
+        return;
+    }
+
+    // 2. Filtra no Javascript
+    let listaFiltrada = produtos || [];
+
+    if (termoBusca && termoBusca.trim() !== '') {
+        const termo = termoBusca.toLowerCase().trim();
+        listaFiltrada = listaFiltrada.filter(p => {
+            // Busca por Nome
+            return p.nome_produto.toLowerCase().includes(termo);
+        });
+    }
+
+    if (listaFiltrada.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">Nenhum produto encontrado.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = ''; 
+    
+    listaFiltrada.forEach(produto => {
+        const tr = document.createElement('tr');
+        const nomeCategoria = produto.categorias_produto ? produto.categorias_produto.nome_categoria : 'Sem categoria';
+        
+        tr.innerHTML = `
+            <td>${produto.nome_produto}</td>
+            <td>R$ ${produto.preco_medio.toFixed(2)}</td>
+            <td>${nomeCategoria}</td>
+            <td>
+                <button class="btn-editar" data-id="${produto.id}" style="${estiloBotaoEditar}">Editar</button>
+                <button class="btn-excluir" data-id="${produto.id}" style="${estiloBotaoExcluir}">Excluir</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Re-ligar eventos dos botões
+    attachProductEvents(supabase);
+}
+
+// Função auxiliar para ligar eventos
+function attachProductEvents(supabase) {
+    document.querySelectorAll('.btn-editar').forEach(button => {
+        button.addEventListener('click', (e) => {
+            abrirModalEdicao(supabase, e.target.getAttribute('data-id'));
+        });
+    });
+
+    document.querySelectorAll('.btn-excluir').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const id = e.target.getAttribute('data-id');
+            if (confirm('Tem certeza que deseja INATIVAR este produto?')) {
+                e.target.disabled = true;
+                const { error } = await supabase.from('produtos').update({ ativo: false }).eq('id', id);
+                if (error) {
+                    alert('Erro: ' + error.message);
+                    e.target.disabled = false;
+                } else {
+                    e.target.closest('tr').remove();
+                }
+            }
+        });
+    });
+}
+
+// --- MODAL EDIÇÃO ---
 const modalFundo = document.getElementById('modal-fundo');
 const formEditarProduto = document.getElementById('formEditarProduto');
 const mensagemEditarProduto = document.getElementById('mensagemEditarProduto');
 
 // Exportada: Carrega os menus do modal de EDIÇÃO
 export async function carregarOpcoesEditarProduto(supabase) {
-    // (Esta função auxiliar também não deve filtrar por 'ativo')
-    async function carregarMenuOpcoes(supabase, idElemento, nomeTabela, nomeColuna) {
-        const selectMenu = document.getElementById(idElemento);
-        if (!selectMenu) return; 
-        const { data, error } = await supabase.from(nomeTabela).select(`id, ${nomeColuna}`);
-        if (error) {
-            console.error(`Erro ao buscar ${nomeTabela}:`, error);
-            selectMenu.innerHTML = `<option value="">Erro</option>`;
-        } else {
-            selectMenu.innerHTML = `<option value="">Selecione</option>`;
-            data.forEach(item => {
-                selectMenu.innerHTML += `<option value="${item.id}">${item[nomeColuna]}</option>`;
-            });
-        }
-    }
     carregarMenuOpcoes(supabase, 'edit-id_categoria_produto', 'categorias_produto', 'nome_categoria');
+    carregarMenuOpcoes(supabase, 'edit-id_unidade_medida', 'unidades_medida', 'sigla_medida'); 
 }
 
-// Função para ABRIR o modal de edição de produto
 async function abrirModalEdicao(supabase, id) {
     if (!modalFundo) return;
-    
     formEditarProduto.reset();
     mensagemEditarProduto.textContent = '';
     
-    const { data: produto, error } = await supabase
-        .from('produtos')
-        .select('*')
-        .eq('id', id)
-        .single(); 
-
-    if (error) {
-        console.error('Erro ao buscar produto para edição:', error);
-        alert('Não foi possível carregar o produto.');
-        return;
-    }
+    const { data: produto, error } = await supabase.from('produtos').select('*').eq('id', id).single(); 
+    if (error) return alert('Não foi possível carregar o produto.');
 
     document.getElementById('edit-produto-id').value = produto.id;
     document.getElementById('edit-nome_produto').value = produto.nome_produto;
     document.getElementById('edit-preco_medio').value = produto.preco_medio;
     document.getElementById('edit-id_categoria_produto').value = produto.id_categoria_produto;
+    document.getElementById('edit-id_unidade_medida').value = produto.id_unidade_medida; 
     
     modalFundo.classList.remove('hidden');
 }
 
-// Função para FECHAR o modal
-function fecharModalEdicao() {
-    modalFundo.classList.add('hidden');
-}
+document.getElementById('btn-cancelar-edicao')?.addEventListener('click', () => modalFundo.classList.add('hidden'));
 
-// "Liga" o botão de Cancelar
-document.getElementById('btn-cancelar-edicao').addEventListener('click', fecharModalEdicao);
-
-// "Liga" o formulário de SALVAR EDIÇÃO de produto
 export function initFormularioEditarProduto(supabase) {
     if (!formEditarProduto) return;
 
     formEditarProduto.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btnSalvarEdicao = document.getElementById('btn-salvar-edicao');
-        btnSalvarEdicao.disabled = true;
-        btnSalvarEdicao.innerText = 'Salvando...';
+        btnSalvarEdicao.disabled = true; btnSalvarEdicao.innerText = 'Salvando...';
 
         const formData = new FormData(formEditarProduto);
         const dadosAtualizados = Object.fromEntries(formData.entries());
-
         const idProduto = parseInt(dadosAtualizados.id);
+        
         dadosAtualizados.preco_medio = parseFloat(dadosAtualizados.preco_medio);
         dadosAtualizados.id_categoria_produto = parseInt(dadosAtualizados.id_categoria_produto);
-
+        dadosAtualizados.id_unidade_medida = parseInt(dadosAtualizados.id_unidade_medida);
         delete dadosAtualizados.id; 
         
-        const { error } = await supabase
-            .from('produtos')
-            .update(dadosAtualizados)
-            .eq('id', idProduto); 
+        const { error } = await supabase.from('produtos').update(dadosAtualizados).eq('id', idProduto); 
 
         if (error) {
-            console.error('Erro ao atualizar produto:', error);
             mensagemEditarProduto.style.color = "red";
             mensagemEditarProduto.innerText = "Erro: " + error.message;
         } else {
             mensagemEditarProduto.style.color = "green";
-            mensagemEditarProduto.innerText = "Produto atualizado com sucesso!";
+            mensagemEditarProduto.innerText = "Produto atualizado!";
             carregarProdutos(supabase);
-            setTimeout(() => {
-                fecharModalEdicao();
-            }, 2000);
+            setTimeout(() => modalFundo.classList.add('hidden'), 2000);
         }
-
-        btnSalvarEdicao.disabled = false;
-        btnSalvarEdicao.innerText = 'Salvar Alterações';
+        btnSalvarEdicao.disabled = false; btnSalvarEdicao.innerText = 'Salvar Alterações';
     });
 }

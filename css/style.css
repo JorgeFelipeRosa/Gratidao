@@ -1,480 +1,539 @@
 /* ======================================== */
-/* TEMA: "GRATIDÃO" (DARK MODE & GOLD)      */
+/* TEMA: "GRATIDÃO PREMIUM" (DARK & GOLD)   */
 /* ======================================== */
 
-/* --- Variáveis de Cor --- */
 :root {
-    --cor-fundo-principal: #1a1d21;
-    --cor-fundo-menu: #111315;
-    --cor-fundo-widget: #2a2c30;
-    --cor-borda: #3a3d42;
-    --cor-acento-principal: #f0c400;
-    --cor-texto-principal: #e0e0e0;
-    --cor-texto-secundario: #9a9a9a;
+    /* Paleta de Cores Premium */
+    --bg-app: #121214;          /* Fundo quase preto */
+    --bg-panel: #202024;        /* Fundo dos cards */
+    --bg-input: #121214;        /* Fundo dos inputs */
+    
+    --border-color: #323238;    /* Bordas sutis */
+    --border-focus: #F5C518;    /* Dourado "Cinema" */
+    
+    --gold-primary: #F5C518;    /* Dourado Principal */
+    --gold-hover: #D4A017;      /* Dourado mais escuro */
+    
+    --text-primary: #E1E1E6;    /* Branco gelo */
+    --text-secondary: #A8A8B3;  /* Cinza claro */
+    
+    --danger: #E25858;          /* Vermelho suave */
+    --success: #04D361;         /* Verde neon */
+    
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --radius: 8px;              /* Arredondamento */
 }
 
 /* --- GERAL --- */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
-    background: var(--cor-fundo-principal);
-    color: var(--cor-texto-principal);
-}
-.hidden {
-    display: none !important;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
 }
 
-/* --- ESTILOS DE LOGIN --- */
+.hidden { display: none !important; }
+
+/* Scrollbar Personalizada */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-app); }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
+
+/* --- LOGIN --- */
 #container-login {
     display: grid;
     place-items: center;
     min-height: 100vh;
-    width: 100%;
-    background: var(--cor-fundo-menu);
+    background: radial-gradient(circle at center, #2a2a30 0%, #121214 100%);
 }
+
 .form-auth {
-    background: var(--cor-fundo-widget);
-    border: 1px solid var(--cor-borda);
-    padding: 30px;
-    border-radius: 8px;
-    width: 320px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    padding: 40px;
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 360px;
+    box-shadow: var(--shadow-card);
+    text-align: center;
 }
-/* NOVO: Estilo da logo no login */
+
 .logo-login {
-    width: 60%;
-    display: block;
-    margin: 0 auto 20px auto;
-}
-.form-auth h2 { /* Trocado para p */
-    text-align: center;
-    margin-top: 0;
-    color: var(--cor-texto-principal);
-}
-.form-auth p {
-    color: var(--cor-texto-secundario);
-    text-align: center;
-}
-.form-auth a {
-    display: block;
-    text-align: center;
-    margin-top: 15px;
-    color: var(--cor-acento-principal);
-    cursor: pointer;
-}
-.form-auth #auth-mensagem, .form-auth #auth-mensagem-signup {
-    color: #e74c3c;
-    text-align: center;
-    font-size: 0.9em;
-    margin-top: 10px;
+    width: 140px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px rgba(245, 197, 24, 0.2));
 }
 
-/* --- CONTAINER DO APP --- */
-#container-app {
-    display: none;
-}
+.form-auth h2, .form-auth p { margin-bottom: 20px; }
+.form-auth a { color: var(--gold-primary); text-decoration: none; font-size: 0.9rem; }
+.form-auth a:hover { text-decoration: underline; }
 
-/* --- NAVEGAÇÃO (MENU LATERAL) --- */
+/* --- NAVEGAÇÃO (MENU LATERAL - ESTILO DASHBOARD) --- */
 .navegacao {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 220px;
+    top: 0; left: 0;
+    width: 250px;
     height: 100vh;
-    background: var(--cor-fundo-menu);
-    color: var(--cor-texto-secundario);
-    padding-top: 20px;
+    background: #18181b;
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    border-right: 1px solid var(--cor-borda);
-    z-index: 1001;
+    z-index: 100;
+    padding: 15px;
+    overflow-y: auto;
 }
-/* NOVO: Estilo da logo no menu */
+
 .logo-menu {
-    width: 90%;
+    width: 130px;
+    margin: 10px auto 25px auto;
     display: block;
-    margin: -10px auto 15px auto; /* Ajuste de margem */
+    filter: drop-shadow(0 0 5px rgba(245, 197, 24, 0.3));
 }
+
 .navegacao ul {
     list-style: none;
     padding: 0;
     margin: 0;
-}
-.navegacao li {
-    padding: 15px 20px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--cor-borda);
-}
-.navegacao li:hover {
-    background: var(--cor-fundo-widget);
-    color: var(--cor-acento-principal);
-}
-.nav-bottom {
-    border-top: 1px solid var(--cor-borda);
-}
-#btn-logout {
-    color: #e74c3c;
-}
-#btn-logout:hover {
-    background: #c0392b;
-    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* --- CABEÇALHO MOBILE (NOVO!) --- */
+.navegacao li {
+    background: #27272a;
+    padding: 15px 10px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    border: 1px solid transparent;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.navegacao li i {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+    color: #71717a;
+    transition: color 0.2s;
+}
+
+.navegacao li span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.navegacao li:hover {
+    background: #3f3f46;
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    color: var(--text-primary);
+}
+
+.navegacao li:hover i { color: var(--text-primary); }
+
+.navegacao li.item-ativo {
+    background: rgba(245, 197, 24, 0.15);
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
+}
+.navegacao li.item-ativo i { color: var(--gold-primary); }
+
+.nav-bottom {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+#btn-logout {
+    flex-direction: row;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid rgba(226, 88, 88, 0.3);
+    color: var(--danger);
+}
+#btn-logout:hover {
+    background: rgba(226, 88, 88, 0.1);
+    border-color: var(--danger);
+}
+
+/* --- CABEÇALHO MOBILE --- */
 .mobile-header {
     display: none;
-    background: var(--cor-fundo-widget);
-    color: var(--cor-acento-principal);
-    padding: 10px 15px;
+    background: var(--bg-panel);
+    padding: 15px 20px;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid var(--cor-borda);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky; top: 0; z-index: 999;
 }
-/* NOVO: Estilo da logo no header mobile */
-.logo-mobile {
-    height: 40px; /* Altura fixa */
-    width: auto;
-}
+.logo-mobile { height: 40px; }
 #btn-hamburger {
-    background: none;
-    border: none;
-    color: var(--cor-acento-principal);
-    font-size: 24px;
-    cursor: pointer;
-    width: auto;
-    padding: 5px;
+    background: none; border: none;
+    color: var(--gold-primary);
+    font-size: 28px; cursor: pointer;
 }
 
 /* --- CONTEÚDO PRINCIPAL --- */
 .conteudo-principal {
-    margin-left: 220px;
-    padding: 30px;
+    margin-left: 250px;
+    padding: 40px;
+    max-width: 1200px;
 }
+
 .tela {
     display: none;
-    background: var(--cor-fundo-widget);
-    padding: 25px;
-    border-radius: 8px;
-    border: 1px solid var(--cor-borda);
+    background: var(--bg-panel);
+    padding: 30px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-card);
+    animation: fadeIn 0.3s ease-in-out;
 }
-.tela.ativa {
-    display: block;
-}
+.tela.ativa { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
 .tela h2 {
-    color: var(--cor-acento-principal);
-    border-bottom: 1px solid var(--cor-borda);
-    padding-bottom: 10px;
+    color: var(--gold-primary);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
     margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
-.tela h3 {
-    color: var(--cor-texto-principal);
-}
-/* NOVO: Estilo da logo na home */
+
 .logo-home {
-    max-width: 450px;
-    width: 90%;
+    max-width: 400px; width: 100%;
+    display: block; margin: 40px auto;
+    opacity: 0.8;
+}
+
+/* --- FORMULÁRIOS --- */
+form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+form h2, form .full-width, form button[type="submit"], form .mensagem-box {
+    grid-column: 1 / -1;
+}
+form > div { margin-bottom: 0; }
+
+label {
     display: block;
-    margin: 20px auto 0 auto;
-    border-radius: 8px; /* Opcional: suaviza as bordas */
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
 }
 
-
-/* --- ESTILOS DE FORMULÁRIO --- */
-form { 
-    max-width: 600px; 
-}
-form div { 
-    margin-bottom: 15px; 
-}
-label { 
-    display: block; 
-    margin-bottom: 5px; 
-    font-weight: bold; 
-    color: var(--cor-texto-secundario);
-    font-size: 0.9em;
-}
-input, select, textarea { 
-    width: 100%; 
-    padding: 12px; 
-    border: 1px solid var(--cor-borda); 
-    background-color: var(--cor-fundo-principal);
-    color: var(--cor-texto-principal);
-    border-radius: 4px; 
+input, select, textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 1rem;
     box-sizing: border-box;
 }
-select option {
-    background: var(--cor-fundo-principal);
-    color: var(--cor-texto-principal);
-}
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-input[type=number] {
-  -moz-appearance: textfield;
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 0 2px rgba(245, 197, 24, 0.2);
 }
 
 /* --- BOTÕES --- */
-button, .btn { 
-    background: var(--cor-acento-principal);
-    color: #111;
-    padding: 12px 20px; 
-    border: none; 
-    cursor: pointer; 
-    font-size: 16px; 
-    font-weight: bold;
-    border-radius: 4px; 
-    width: 100%;
+button {
+    background: var(--gold-primary);
+    color: #121214;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
 }
-button:hover, .btn:hover {
-    background: #d4ac0d;
-}
-#btn-add-item-orcamento {
-    background: #007bff;
-    color: white;
-}
-#btn-add-item-orcamento:hover {
-    background: #0056b3;
-}
-/* Mensagens de sucesso/erro */
-#mensagem, #mensagemProduto, #mensagemMercadoria, #mensagemOrcamento, #mensagemPedido, #mensagemConsumo, #mensagemGerenciarListas, #mensagemMudarStatus, #mensagemEditarCliente, #mensagemEditarProduto, #mensagemEditarMercadoria, #mensagemAddPagamento { 
-    margin-top: 15px; 
-    font-weight: bold; 
-    text-align: center; 
-}
+button:hover { background: var(--gold-hover); transform: translateY(-1px); }
+button:active { transform: translateY(1px); }
 
-/* --- ESTILOS DA TABELA DE CONSULTA --- */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+td button {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    margin-right: 5px;
+    width: auto;
+    display: inline-block;
 }
-th, td {
-    padding: 12px;
-    border: 1px solid var(--cor-borda);
-    text-align: left;
+.btn-excluir { background: rgba(226, 88, 88, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+.btn-excluir:hover { background: var(--danger); color: white; }
+.btn-editar { background: rgba(245, 197, 24, 0.15); color: var(--gold-primary); border: 1px solid var(--gold-primary); }
+.btn-editar:hover { background: var(--gold-primary); color: #121214; }
+.btn-cancelar { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); }
+.btn-cancelar:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); border-color: var(--text-primary); }
+
+/* --- TABELAS --- */
+.tabela-responsiva {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color); 
 }
+table { width: 100%; border-collapse: collapse; background: var(--bg-panel); }
 th {
-    background-color: #333;
-    color: var(--cor-acento-principal);
+    background: #29292e;
+    color: var(--gold-primary);
+    text-align: left;
+    padding: 16px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
 }
-/* Botões de Ação na Tabela */
-.btn-editar, .btn-mudar-status-pedido, .btn-editar-cliente, .btn-editar-mercadoria {
-    background: #ffc107;
-    color: #333;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
-    font-size: 0.9em;
-    margin: 2px;
+td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
 }
-.btn-excluir, .btn-excluir-item-temp, .btn-inativar-lista-item, .btn-excluir-cliente, .btn-excluir-orcamento, .btn-excluir-mercadoria {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
-    font-size: 0.9em;
-    margin: 2px;
-}
-.btn-visualizar-orcamento, .btn-visualizar-pedido {
-    background: #17a2b8;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
-    font-size: 0.9em;
-    margin: 2px;
-}
-.btn-aprovar-orcamento {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
-    font-size: 0.9em;
-    margin: 2px;
-}
-.btn-add-pagamento {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: auto;
-    font-size: 0.9em;
-    margin: 2px;
-}
+tr:hover { background: rgba(255, 255, 255, 0.02); }
 
-/* --- ESTILOS DO MODAL (Pop-up) --- */
+/* --- MODAIS (FIXOS) --- */
 .modal-fundo {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: grid;
-    place-items: center;
-    z-index: 1000;
-}
-.modal {
-    background: var(--cor-fundo-widget);
-    border: 1px solid var(--cor-borda);
-    padding: 25px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-}
-.modal h2 {
-    margin-top: 0;
-    color: var(--cor-acento-principal);
-}
-.modal-botoes {
+    top: 0; left: 0;
+    width: 100%; height: 100vh;
+    z-index: 2000;
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+}
+.modal-fundo.hidden { display: none !important; }
+.modal {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 50px rgba(0,0,0, 0.8);
+    padding: 30px;
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalPopUp 0.3s ease;
+}
+@keyframes modalPopUp { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+.modal h2 { margin-top: 0; color: var(--gold-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+.modal-botoes { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+
+/* --- FIELDSETS --- */
+fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
+
+/* --- CORREÇÃO: ORÇAMENTO E PEDIDO --- */
+#formOrcamento table, #formOrcamento h3, #formOrcamento .tabela-responsiva,
+#formPedido table, #formPedido h3, #formPedido .tabela-responsiva {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 15px;
+}
+#total-orcamento, #pedido-valor-total {
+    grid-column: 1 / -1;
+    text-align: right;
+    font-size: 1.4rem;
+    color: var(--gold-primary);
     margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
 }
-.modal-botoes button {
-    width: auto;
+
+/* ======================================== */
+/* RESPONSIVIDADE (MOBILE - CORREÇÃO FINAL) */
+/* ======================================== */
+@media (max-width: 800px) {
+    .navegacao { transform: translateX(-100%); width: 85%; }
+    .navegacao.menu-aberto { transform: translateX(0); box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+    
+    .mobile-header { display: flex; }
+    .conteudo-principal { margin-left: 0; padding: 15px; }
+    
+    .tela { padding: 15px !important; overflow-x: hidden; }
+    fieldset { padding: 15px 10px; display: block; }
+    form { grid-template-columns: 1fr; }
+    
+    th, td { padding: 12px 10px; font-size: 0.85rem; white-space: nowrap; }
+    td button { padding: 8px; margin: 0 2px; }
+    .modal { width: 95%; padding: 15px; max-height: 85vh; }
 }
-.btn-cancelar, #btn-cancelar-edicao, #btn-cancelar-edicao-cliente, #btn-cancelar-pagamento, #btn-cancelar-mudar-status, #btn-cancelar-edicao-mercadoria {
-    background: #6c757d;
+
+/* ======================================== */
+/* ESTILOS DE IMPRESSÃO (RECIBO)            */
+/* ======================================== */
+.hidden-screen { display: none !important; }
+
+@media print {
+    body, html { background: #FFFFFF !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; height: 100%; width: 100%; }
+    
+    #container-app, #container-login, .navegacao, .mobile-header, .modal-fundo {
+        display: none !important; height: 0 !important; width: 0 !important; overflow: hidden !important;
+    }
+    
+    #area-recibo {
+        display: block !important;
+        position: absolute !important; left: 0 !important; top: 0 !important;
+        width: 100% !important; margin: 0 !important; padding: 20px !important;
+        background: white !important; color: black !important; z-index: 9999 !important;
+        visibility: visible !important;
+    }
+    #area-recibo * { visibility: visible !important; color: black !important; }
+
+    .recibo-container { border: 2px solid #000; padding: 30px; font-family: 'Times New Roman', serif; max-width: 800px; margin: 0 auto; }
+    .recibo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #000; padding-bottom: 20px; }
+    .recibo-logo { width: 120px; max-height: 100px; object-fit: contain; filter: grayscale(100%); }
+    .recibo-empresa { text-align: right; font-size: 0.9rem; line-height: 1.4; }
+    .recibo-empresa h2 { font-size: 1.2rem; margin: 0 0 5px 0; }
+    .recibo-empresa p { margin: 0; }
+    .recibo-titulo { text-align: center; margin: 30px 0; font-size: 1.8rem; text-transform: uppercase; text-decoration: underline; }
+    .recibo-corpo { font-size: 1.1rem; line-height: 1.8; margin-bottom: 30px; }
+    
+    .recibo-detalhes { margin: 20px 0 40px 0; border: 1px solid #000; }
+    .recibo-detalhes h3 { background: #eee; margin: 0; padding: 5px 10px; border-bottom: 1px solid #000; font-size: 0.9rem; -webkit-print-color-adjust: exact; }
+    .recibo-tabela-itens { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .recibo-tabela-itens th { border-bottom: 1px solid #000; padding: 5px; text-align: left; }
+    .recibo-tabela-itens td { border-bottom: 1px solid #ccc; padding: 5px; }
+    .recibo-tabela-itens tfoot td { border-top: 2px solid #000; font-weight: bold; padding-top: 10px; }
+
+    .recibo-data-local { text-align: right; margin-bottom: 80px; font-size: 1.1rem; }
+    .recibo-assinatura { text-align: center; page-break-inside: avoid; }
+    .linha-assinatura { border-top: 1px solid #000; width: 400px; margin: 0 auto 10px auto; }
+}
+/* --- BARRA DE PESQUISA (CONSULTAS) --- */
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    align-items: center;
+}
+
+.search-container input {
+    flex: 1; /* Ocupa o espaço restante */
+    margin-bottom: 0; /* Remove margem padrão de inputs */
+    background: var(--bg-app);
+}
+
+.search-container button {
+    width: auto; /* Botão só ocupa o tamanho do texto */
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#btn-limpar-busca {
+    background: #444;
+    color: #ccc;
+}
+#btn-limpar-busca:hover {
+    background: #555;
     color: white;
 }
 
-/* --- Estilos Específicos de Modais --- */
-.detalhes-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-.detalhes-grid div {
-    font-size: 0.95em;
-    color: var(--cor-texto-secundario);
-}
-.detalhes-grid span {
-    color: var(--cor-texto-principal);
-    font-weight: normal;
-}
-.colunas-detalhe {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-}
-.colunas-detalhe h3 {
-    margin-top: 0;
-    color: var(--cor-acento-principal);
-}
-.colunas-detalhe table {
-    margin-top: 10px;
-}
 
-/* --- Estilos Financeiros --- */
-.status-pago {
-    color: #28a745;
-}
-.status-pendente {
-    color: #e74c3c;
-}
-#total-orcamento, #detalhe-valor-total {
-    text-align: right;
-    font-size: 1.5em;
-    color: var(--cor-acento-principal);
-}
+
+
+
 
 
 /* ======================================== */
-/* --- ESTILOS RESPONSIVOS ---        */
+/* AUTOCOMPLETE PERSONALIZADO (PREMIUM)     */
 /* ======================================== */
 
-/* Para telas menores que 800px (tablets e celulares) */
-@media (max-width: 800px) {
-    
-    /* 1. Esconde o menu lateral de desktop */
-    .navegacao {
-        display: none;
-    }
-    
-    /* 2. Mostra o cabeçalho mobile */
-    .mobile-header {
-        display: flex;
-    }
-    
-    /* 3. Faz o conteúdo principal ocupar a tela inteira */
-    .conteudo-principal {
-        margin-left: 0;
-        padding: 15px; /* Menos preenchimento no celular */
-    }
-    
-    /* 4. Define o que acontece quando o menu é aberto */
-    .navegacao.menu-aberto {
-        display: flex; /* Faz o menu reaparecer */
-        width: 100%;   /* Ocupa a largura toda */
-        height: 100vh; /* Ocupa a altura toda */
-        /* position: fixed; já estava definido */
-        /* z-index: 1001; já estava definido */
-    }
-
-    /* 5. Ajustes em tabelas para caberem melhor */
-    table, th, td {
-        font-size: 0.85em; /* Diminui a fonte da tabela */
-        padding: 8px;
-    }
-
-    /* 6. Ajuste nos formulários "grid" (como o de adicionar item) */
-    .item-adder-form {
-        grid-template-columns: 1fr; /* Faz os campos ficarem um em cima do outro */
-        gap: 15px;
-    }
-    .item-adder-form button {
-        width: 100%; /* Botão ocupa 100% no mobile */
-    }
-
-    /* 7. Ajuste nos modais */
-    .modal {
-        width: 90%;
-        padding: 20px;
-    }
-    .colunas-detalhe {
-        grid-template-columns: 1fr; /* Faz as tabelas do modal ficarem uma em cima da outra */
-    }
-    .detalhes-grid {
-        grid-template-columns: 1fr; /* Faz os detalhes ficarem um em cima do outro */
-    }
-    /* --- DENTRO DE @media (max-width: 800px) { ... } --- */
-
-/* 8. Ajuste para Tabelas no Mobile */
-.tabela-responsiva {
+/* Container para segurar a lista embaixo do input */
+.wrapper-autocomplete {
+    position: relative; /* Importante para a lista absoluta */
     width: 100%;
-    overflow-x: auto; /* PERMITE O SCROLL HORIZONTAL */
-    -webkit-overflow-scrolling: touch; /* Melhora o toque no iOS */
 }
 
-/* Força a tabela a ter sua largura total (evita o corte de colunas) */
-.tabela-responsiva table {
-    width: auto; 
-    min-width: 750px; /* Garante uma largura mínima para forçar o scroll */
+/* A lista flutuante */
+.lista-sugestoes {
+    position: absolute;
+    top: 100%; /* Cola logo abaixo do input */
+    left: 0;
+    width: 100%;
+    background: var(--bg-panel);
+    border: 1px solid var(--gold-primary); /* Borda Dourada */
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    z-index: 1000; /* Fica por cima de tudo */
+    max-height: 250px; /* Altura máxima com scroll */
+    overflow-y: auto;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none; /* Escondida por padrão */
 }
 
-/* Ajusta o preenchimento dos TDs para caber mais */
-.tabela-responsiva td, .tabela-responsiva th {
-    white-space: nowrap; /* Impede que o texto quebre, forçando a coluna a ser mais larga */
-    padding: 6px 10px;
+/* Classe para mostrar a lista via JS */
+.lista-sugestoes.visivel {
+    display: block;
 }
+
+/* Itens da lista */
+.lista-sugestoes li {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+/* Hover no item */
+.lista-sugestoes li:hover {
+    background: rgba(245, 197, 24, 0.15); /* Fundo dourado transparente */
+    color: var(--gold-primary);
+    padding-left: 20px; /* Efeito de deslize */
+}
+
+/* Quando não encontra nada */
+.item-sem-resultado {
+    padding: 15px;
+    color: var(--text-secondary);
+    text-align: center;
+    font-style: italic;
 }
