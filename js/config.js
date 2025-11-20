@@ -1,4 +1,5 @@
 ﻿// js/config.js
+import { Toast } from './toast.js';
 
 export async function carregarConfiguracoes(supabase) {
     // Pega a primeira linha da tabela
@@ -21,15 +22,17 @@ export async function carregarConfiguracoes(supabase) {
 export function initFormularioConfig(supabase) {
     const form = document.getElementById('formConfiguracoes');
     if(!form) return;
+    
+    // Trava de segurança
+    if (form.getAttribute('data-init') === 'true') return;
+    form.setAttribute('data-init', 'true');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = form.querySelector('button');
-        const msg = document.getElementById('mensagemConfig');
         
         btn.disabled = true;
         btn.innerText = "Salvando...";
-        msg.textContent = "";
 
         const formData = new FormData(form);
         const dados = Object.fromEntries(formData.entries());
@@ -38,6 +41,7 @@ export function initFormularioConfig(supabase) {
 
         let error = null;
 
+        // Upsert logic (Update se tiver ID, Insert se não)
         if (id) {
             const res = await supabase.from('configuracoes').update(dados).eq('id', id);
             error = res.error;
@@ -47,11 +51,9 @@ export function initFormularioConfig(supabase) {
         }
 
         if (error) {
-            msg.style.color = 'red';
-            msg.textContent = "Erro: " + error.message;
+            Toast.show("Erro ao salvar: " + error.message, 'error');
         } else {
-            msg.style.color = 'green';
-            msg.textContent = "Dados da empresa atualizados!";
+            Toast.show("Dados da empresa atualizados com sucesso!", 'success');
         }
         
         btn.disabled = false;

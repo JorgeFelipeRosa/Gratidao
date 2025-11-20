@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link rel="stylesheet" href="css/style.css">
@@ -50,6 +49,7 @@
     </div>
 
     <div id="container-app">
+        
         <nav class="navegacao" id="menu-lateral">
             <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-menu">
             
@@ -57,6 +57,10 @@
                 <li data-target="tela-home">
                     <i class="fa-solid fa-house"></i>
                     <span>Home</span>
+                </li>
+                <li data-target="tela-kanban">
+                    <i class="fa-solid fa-table-columns"></i>
+                    <span>Fila de Produção</span>
                 </li>
                 <li data-target="tela-cadastro-cliente">
                     <i class="fa-solid fa-user-plus"></i>
@@ -113,6 +117,11 @@
             </ul>
             
             <ul class="nav-bottom">
+                 <li id="btn-tema-toggle">
+                     <i class="fa-solid fa-sun"></i>
+                     <span>Modo Claro</span>
+                 </li>
+
                  <li id="btn-logout">
                      <i class="fa-solid fa-right-from-bracket"></i>
                      <span>Sair</span>
@@ -128,8 +137,79 @@
         <main class="conteudo-principal">
             
             <section id="tela-home" class="tela ativa">
-                <img src="img/logo.jpg" alt="Gratidão Logo" class="logo-home">
-                <p style="text-align: center; margin-top: 20px;">Selecione uma opção no menu ao lado para começar.</p>
+                <div class="dashboard-header">
+                    <h2>Visão Geral</h2>
+                    <p class="data-hoje"><i class="fa-regular fa-calendar"></i> Hoje é um ótimo dia para vender.</p>
+                </div>
+
+                <div class="dashboard-grid" id="dashboard-stats">
+                    <div class="kpi-card destaque">
+                        <div class="kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="kpi-info">
+                            <span>Vendas (Mês Atual)</span>
+                            <h3 id="kpi-vendas">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="document.querySelector('li[data-target=\'tela-consulta-orcamentos\']').click()">
+                        <div class="kpi-icon"><i class="fa-regular fa-clock"></i></div>
+                        <div class="kpi-info">
+                            <span>Orçamentos Pendentes</span>
+                            <h3 id="kpi-orcamentos">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card" onclick="document.querySelector('li[data-target=\'tela-kanban\']').click()">
+                        <div class="kpi-icon"><i class="fa-solid fa-hammer"></i></div>
+                        <div class="kpi-info">
+                            <span>Em Produção</span>
+                            <h3 id="kpi-producao">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px; font-size: 1.1rem; color: var(--text-secondary);">Acesso Rápido</h3>
+                <div class="shortcuts-grid">
+                    <button class="btn-shortcut" onclick="document.querySelector('li[data-target=\'tela-cadastro-orcamento\']').click()">
+                        <i class="fa-solid fa-plus"></i> Novo Orçamento
+                    </button>
+                    <button class="btn-shortcut" onclick="document.querySelector('li[data-target=\'tela-cadastro-pedido\']').click()">
+                        <i class="fa-solid fa-cart-plus"></i> Novo Pedido
+                    </button>
+                    <button class="btn-shortcut" onclick="document.querySelector('li[data-target=\'tela-cadastro-cliente\']').click()">
+                        <i class="fa-solid fa-user-plus"></i> Novo Cliente
+                    </button>
+                    <button class="btn-shortcut" onclick="document.querySelector('li[data-target=\'tela-registro-consumo\']').click()">
+                        <i class="fa-solid fa-industry"></i> Reg. Produção
+                    </button>
+                </div>
+            </section>
+
+            <section id="tela-kanban" class="tela">
+                <h2>Fila de Produção (Kanban)</h2>
+                <div class="kanban-board">
+                    <div class="kanban-column">
+                        <div class="k-col-header k-todo">
+                            <span>A FAZER</span>
+                            <i class="fa-solid fa-list-ul"></i>
+                        </div>
+                        <div class="k-col-body" id="kanban-todo"></div>
+                    </div>
+                    <div class="kanban-column">
+                        <div class="k-col-header k-doing">
+                            <span>EM PRODUÇÃO</span>
+                            <i class="fa-solid fa-hammer"></i>
+                        </div>
+                        <div class="k-col-body" id="kanban-doing"></div>
+                    </div>
+                    <div class="kanban-column">
+                        <div class="k-col-header k-done">
+                            <span>CONCLUÍDO</span>
+                            <i class="fa-solid fa-check-circle"></i>
+                        </div>
+                        <div class="k-col-body" id="kanban-done"></div>
+                    </div>
+                </div>
             </section>
 
             <section id="tela-configuracoes" class="tela">
@@ -141,9 +221,7 @@
                     <div><label>Endereço Completo:</label><input type="text" name="endereco" id="conf-endereco"></div>
                     <div><label>Telefone / WhatsApp:</label><input type="text" name="telefone" id="conf-telefone"></div>
                     <div><label>Nome do Proprietário (Assinatura):</label><input type="text" name="nome_proprietario" id="conf-dono"></div>
-                    
                     <button type="submit">Salvar Configurações</button>
-                    <div id="mensagemConfig"></div>
                 </form>
             </section>
 
@@ -160,7 +238,6 @@
                     <div><label for="tipoCliente">Tipo de Cliente:</label><select id="tipoCliente" name="id_tipo_cliente" required><option value="">Carregando...</option></select></div>
                     <div><label for="canalVenda">Canal de Venda:</label><select id="canalVenda" name="id_canal_venda" required><option value="">Carregando...</option></select></div>
                     <button type="submit" id="btnSalvarCliente">Salvar Cliente</button>
-                    <div id="mensagem"></div>
                 </form>
             </section>
 
@@ -175,16 +252,8 @@
                     <table id="tabelaClientes">
                         <thead>
                             <tr>
-                                <th>Nome</th>
-                                <th>CPF</th>
-                                <th>Telefone</th>
-                                <th>Tipo</th>
-                                <th>Canal</th>
-                                <th>CEP</th> 
-                                <th>Rua</th> 
-                                <th>Bairro</th> 
-                                <th>Cidade</th> 
-                                <th>Ações</th>
+                                <th>Nome</th> <th>CPF</th> <th>Telefone</th> <th>Tipo</th> <th>Canal</th> 
+                                <th>CEP</th> <th>Rua</th> <th>Bairro</th> <th>Cidade</th> <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="corpoTabelaClientes">
@@ -205,7 +274,6 @@
                     <div><label for="id_co">Opção Cor:</label><select id="id_co" name="id_co" required><option value="">Carregando...</option></select></div>
                     <div><label for="id_unidade_medida">Unidade de Medida Padrão:</label><select id="id_unidade_medida" name="id_unidade_medida" required><option value="">Carregando...</option></select></div>
                     <button type="submit" id="btnSalvarProduto">Salvar Produto</button>
-                    <div id="mensagemProduto"></div>
                 </form>
             </section>
             
@@ -229,16 +297,14 @@
                 <form id="formOrcamento">
                     <fieldset class="form-grupo">
                         <legend>Dados Principais</legend>
-                        
                         <div>
                             <label>Cliente:</label>
                             <div class="input-group">
-                                <input type="text" id="display-cliente-orcamento" placeholder="Clique na lupa para buscar..." readonly>
+                                <input type="text" id="display-cliente-orcamento" placeholder="Clique na lupa para buscar..." readonly style="background: #2a2a30; cursor: pointer;">
                                 <button type="button" id="btn-abrir-modal-cliente"><i class="fa-solid fa-magnifying-glass"></i></button>
                                 <input type="hidden" id="hidden-id-cliente-orcamento">
                             </div>
                         </div>
-
                         <div><label for="data-validade-orcamento">Data de Validade:</label><input type="date" id="data-validade-orcamento" required></div>
                         <div><label for="obs-orcamento">Observações (Capa):</label><textarea id="obs-orcamento" rows="3"></textarea></div>
                     </fieldset>
@@ -246,20 +312,17 @@
                     <fieldset class="form-grupo">
                         <legend>Adicionar Itens ao Orçamento</legend>
                         <div class="item-adder-form">
-                            
                             <div>
                                 <label>Produto:</label>
                                 <div class="input-group">
-                                    <input type="text" id="display-produto-orcamento" placeholder="Clique na lupa..." readonly>
+                                    <input type="text" id="display-produto-orcamento" placeholder="Clique na lupa..." readonly style="background: #2a2a30; cursor: pointer;">
                                     <button type="button" id="btn-abrir-modal-produto"><i class="fa-solid fa-magnifying-glass"></i></button>
                                     <input type="hidden" id="hidden-id-produto-orcamento">
                                 </div>
                             </div>
-
                             <div><label for="qtd-item-orcamento">Quantidade:</label><input type="number" id="qtd-item-orcamento" value="1" step="any"></div>
-                            <div><label for="preco-item-orcamento">Preço (Unit.):</label><input type="number" id="preco-item-orcamento" step="0.01"></div>
+                            <div><label for="preco-item-orcamento">Preço Negociado (Unit.):</label><input type="number" id="preco-item-orcamento" step="0.01"></div>
                             <div><label for="medida-item-orcamento">Medida:</label><input type="text" id="medida-item-orcamento" placeholder="Ex: 1.20 x 0.80"></div>
-                            
                             <button type="button" id="btn-add-item-orcamento">Adicionar Item +</button>
                         </div>
                     </fieldset>
@@ -271,10 +334,9 @@
                             <tbody id="corpoTabelaItensOrcamento"></tbody>
                         </table>
                     </div>
-                    <h3 id="total-orcamento">Total: R$ 0.00</h3>
+                    <h3 id="total-orcamento" style="text-align: right; color: var(--gold-primary); margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">Total: R$ 0.00</h3>
                     <hr>
                     <button type="submit" id="btnSalvarOrcamento">Salvar Orçamento Completo</button>
-                    <div id="mensagemOrcamento"></div>
                 </form>
             </section>
             
@@ -300,9 +362,7 @@
                         <legend>1. Selecionar Orçamento Aprovado</legend>
                         <div>
                             <label for="select-orcamento-aprovado">Orçamentos Aprovados:</label>
-                            <select id="select-orcamento-aprovado" required>
-                                <option value="">Carregando orçamentos...</option>
-                            </select>
+                            <select id="select-orcamento-aprovado" required><option value="">Carregando orçamentos...</option></select>
                         </div>
                         <button type="button" id="btn-carregar-orcamento">Carregar Dados do Orçamento</button>
                     </fieldset>
@@ -325,8 +385,17 @@
                         </div>
                     </fieldset>
                     <hr>
+                    <fieldset class="form-grupo">
+                        <legend>4. Anexo (Desenho/Projeto)</legend>
+                        <div style="width: 100%;">
+                            <label for="pedido-anexo" class="btn-upload-custom">
+                                <i class="fa-solid fa-camera"></i> Tirar Foto ou Escolher Arquivo
+                            </label>
+                            <input type="file" id="pedido-anexo" accept="image/*" capture="environment" style="display: none;">
+                            <p id="nome-arquivo-selecionado" style="margin-top: 5px; color: var(--gold-primary); font-size: 0.9rem;"></p>
+                        </div>
+                    </fieldset>
                     <button type="submit" id="btnSalvarPedido">Salvar Pedido Completo</button>
-                    <div id="mensagemPedido"></div>
                 </form>
             </section>
 
@@ -340,21 +409,9 @@
                 <div class="tabela-responsiva">
                     <table id="tabelaPedidos">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Data</th>
-                                <th>Cliente</th>
-                                <th>Valor Total</th>
-                                <th>Total Pago</th>
-                                <th>Saldo Pendente</th>
-                                <th>Status Pedido</th>
-                                <th>Status Pgto.</th>
-                                <th>Ações</th>
-                            </tr>
+                            <tr><th>ID</th><th>Data</th><th>Cliente</th><th>Valor Total</th><th>Total Pago</th><th>Saldo Pendente</th><th>Status Pedido</th><th>Status Pgto.</th><th>Ações</th></tr>
                         </thead>
-                        <tbody id="corpoTabelaPedidos">
-                            <tr><td colspan="9">Carregando pedidos...</td></tr>
-                        </tbody>
+                        <tbody id="corpoTabelaPedidos"><tr><td colspan="9">Carregando pedidos...</td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -366,15 +423,12 @@
                         <legend>1. Item a ser Produzido</legend>
                         <div>
                             <label for="consumo-select-item-pedido">Item do Pedido:</label>
-                            <select id="consumo-select-item-pedido" name="item_pedido_data" required>
-                                <option value="">Carregando itens de pedidos...</option>
-                            </select>
+                            <select id="consumo-select-item-pedido" name="item_pedido_data" required><option value="">Carregando itens de pedidos...</option></select>
                         </div>
                     </fieldset>
                     
                     <fieldset class="form-grupo">
                         <legend>2. Material Utilizado</legend>
-                        
                         <div>
                             <label>Matéria-Prima:</label>
                             <div class="input-group">
@@ -383,33 +437,31 @@
                                 <input type="hidden" name="id_mercadoria_usada" id="hidden-id-mercadoria">
                             </div>
                         </div>
-
                         <div class="item-adder-form" style="grid-template-columns: 1fr 1fr;">
-                            <div>
-                                <label for="consumo-qtd">Quantidade Usada:</label>
-                                <input type="number" id="consumo-qtd" name="quantidade_usada" step="any" required>
-                            </div>
-                            <div>
-                                <label for="consumo-custo">Custo no Momento:</label>
-                                <input type="number" id="consumo-custo" name="valor_custo_momento" step="0.01" required>
-                            </div>
+                            <div><label for="consumo-qtd">Quantidade Usada:</label><input type="number" id="consumo-qtd" name="quantidade_usada" step="any" required></div>
+                            <div><label for="consumo-custo">Custo no Momento:</label><input type="number" id="consumo-custo" name="valor_custo_momento" step="0.01" required></div>
                         </div>
                     </fieldset>
 
                     <fieldset class="form-grupo">
                         <legend>3. Detalhes</legend>
-                        <div>
-                            <label for="consumo-observacoes">Observações:</label>
-                            <textarea id="consumo-observacoes" name="observacoes" rows="3"></textarea>
-                        </div>
+                        <div><label for="consumo-observacoes">Observações:</label><textarea id="consumo-observacoes" name="observacoes" rows="3"></textarea></div>
                     </fieldset>
                     <button type="submit" id="btnSalvarConsumo">Salvar Consumo</button>
-                    <div id="mensagemConsumo"></div>
                 </form>
             </section>
 
             <section id="tela-cadastro-mercadoria" class="tela">
-                <h2>Cadastrar Matéria-Prima (Mercadoria)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Cadastrar Matéria-Prima</h2>
+                    <div>
+                        <input type="file" id="input-file-xml" accept=".xml" style="display: none;">
+                        <button type="button" id="btn-importar-xml" style="background: #29B6F6; color: #121214; width: auto; font-size: 0.9rem;">
+                            <i class="fa-solid fa-file-import"></i> Importar XML (NFe)
+                        </button>
+                    </div>
+                </div>
+
                 <form id="formMercadoria">
                     <div><label for="mercadoria-nome">Nome do Material:</label><input type="text" id="mercadoria-nome" name="nome_material" required></div>
                     <div><label for="mercadoria-custo">Valor de Custo (Unitário):</label><input type="number" id="mercadoria-custo" name="valor_custo" step="0.01" required></div>
@@ -418,7 +470,6 @@
                     <div><label for="mercadoria-cor">Cor:</label><select id="mercadoria-cor" name="id_cor_mercadoria" required><option value="">Carregando...</option></select></div>
                     <div><label for="mercadoria-fornecedor">Fornecedor:</label><select id="mercadoria-fornecedor" name="id_fornecedor" required><option value="">Carregando...</option></select></div>
                     <button type="submit" id="btnSalvarMercadoria">Salvar Matéria-Prima</button>
-                    <div id="mensagemMercadoria"></div>
                 </form>
             </section>
             
@@ -443,9 +494,7 @@
                     <legend>1. Selecionar Lista</legend>
                     <div>
                         <label for="select-lista-gerenciar">Qual lista você deseja gerenciar?</label>
-                        <select id="select-lista-gerenciar">
-                            <option value="">Selecione...</option>
-                        </select>
+                        <select id="select-lista-gerenciar"><option value="">Selecione...</option></select>
                     </div>
                 </fieldset>
                 <div id="gerenciador-container" class="hidden">
@@ -462,19 +511,11 @@
                             </div>
                             <button type="submit">Adicionar +</button>
                         </form>
-                        <div id="mensagemGerenciarListas"></div>
                     </fieldset>
                     <fieldset class="form-grupo">
                         <legend>3. Itens Atuais</legend>
                         <table id="tabela-itens-lista">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nome</th>
-                                    <th id="th-extra">Extra</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>ID</th><th>Nome</th><th id="th-extra">Extra</th><th>Ações</th></tr></thead>
                             <tbody id="corpo-tabela-itens-lista"></tbody>
                         </table>
                     </fieldset>
@@ -499,7 +540,6 @@
                     <button type="button" id="btn-cancelar-edicao" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-edicao">Salvar Alterações</button>
                 </div>
-                <div id="mensagemEditarProduto"></div>
             </form>
         </div>
     </div>
@@ -522,7 +562,6 @@
                     <button type="button" id="btn-cancelar-edicao-cliente" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-edicao-cliente">Salvar Alterações</button>
                 </div>
-                <div id="mensagemEditarCliente"></div>
             </form>
         </div>
     </div>
@@ -563,7 +602,6 @@
                     <button type="button" id="btn-cancelar-pagamento" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-pagamento">Salvar Pagamento</button>
                 </div>
-                <div id="mensagemAddPagamento"></div>
             </form>
         </div>
     </div>
@@ -594,6 +632,12 @@
                     </table>
                 </div>
             </div>
+            <div id="area-anexo-visualizar" style="margin-top: 20px; display: none;">
+                <h3>Anexo do Projeto</h3>
+                <img id="img-anexo-pedido" src="" alt="Anexo" style="max-width: 100%; border-radius: 8px; border: 2px solid var(--gold-primary);">
+                <br>
+                <a id="link-baixar-anexo" href="#" target="_blank" style="color: var(--gold-primary); text-decoration: underline;">Abrir imagem original</a>
+            </div>
             <div class="modal-botoes" style="margin-top: 20px;">
                 <button type="button" id="btn-fechar-visualizar-pedido" class="btn-cancelar">Fechar</button>
             </div>
@@ -615,7 +659,6 @@
                     <button type="button" id="btn-cancelar-mudar-status" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-mudar-status">Salvar Status</button>
                 </div>
-                <div id="mensagemMudarStatus"></div>
             </form>
         </div>
     </div>
@@ -634,105 +677,26 @@
                     <button type="button" id="btn-cancelar-edicao-mercadoria" class="btn-cancelar">Cancelar</button>
                     <button type="submit" id="btn-salvar-edicao-mercadoria">Salvar Alterações</button>
                 </div>
-                <div id="mensagemEditarMercadoria"></div>
             </form>
         </div>
     </div>
     
-    <div id="area-recibo" class="hidden-screen">
-        <div class="recibo-container">
-            <div class="recibo-header">
-                <img src="img/logo.jpg" alt="Logo" class="recibo-logo">
-                <div class="recibo-empresa">
-                    <h2 id="print-empresa-nome">NOME DA EMPRESA</h2>
-                    <p id="print-empresa-doc">CNPJ: ...</p>
-                    <p id="print-empresa-end">Endereço...</p>
-                    <p id="print-empresa-tel">Tel: ...</p>
-                </div>
-            </div>
-            
-            <hr class="recibo-divisor">
-            
-            <h1 class="recibo-titulo">RECIBO DE PAGAMENTO</h1>
-            
-            <div class="recibo-corpo">
-                <p>Recebemos de: <strong><span id="recibo-cliente-nome">CLIENTE</span></strong></p>
-                <p>A importância de: <strong>R$ <span id="recibo-valor">0,00</span></strong></p>
-                <p>Forma de Pagamento: <span id="recibo-forma">...</span></p>
-                <p>Referente à entrada/parcela do <strong>Pedido #<span id="recibo-pedido-id">000</span></strong>.</p>
-            </div>
-
-            <div class="recibo-detalhes">
-                <h3>Resumo do Pedido</h3>
-                <table class="recibo-tabela-itens">
-                    <thead>
-                        <tr>
-                            <th>Item / Produto</th>
-                            <th>Qtd</th>
-                            <th>Valor Unit.</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recibo-tabela-body">
-                        </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" style="text-align: right; font-weight: bold;">TOTAL DO PEDIDO:</td>
-                            <td id="recibo-total-pedido">R$ 0,00</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-            
-            <div class="recibo-data-local">
-                <p>Jaraguá do Sul/SC, <span id="recibo-data-extenso">Data</span></p>
-            </div>
-            
-            <div class="recibo-assinatura">
-                <div class="linha-assinatura"></div>
-                <p id="print-empresa-dono">Assinatura</p>
-                <p style="font-size: 0.8rem;">Gratidão Arte em Porcelanato</p>
-            </div>
-        </div>
-    </div>
-<div id="modal-busca-cliente" class="modal-fundo hidden">
-        <div class="modal" style="max-width: 500px;">
-            <h2>Selecionar Cliente</h2>
-            <div class="search-container">
-                <input type="text" id="input-pesquisa-modal-cliente" placeholder="Digite o nome ou CPF...">
-                <button type="button" id="btn-executar-busca-cliente">Buscar</button>
-            </div>
-            <div class="tabela-responsiva" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
-                <table id="tabela-resultados-cliente">
-                    <thead><tr><th>Nome</th><th>CPF</th><th>Ação</th></tr></thead>
-                    <tbody id="tbody-modal-cliente"></tbody>
+    <div id="modal-import-xml" class="modal-fundo hidden">
+        <div class="modal" style="max-width: 800px;">
+            <h2>Itens Encontrados na Nota</h2>
+            <p>O fornecedor foi identificado/cadastrado. Verifique os itens abaixo:</p>
+            <div class="tabela-responsiva" style="max-height: 400px; overflow-y: auto;">
+                <table style="width: 100%;">
+                    <thead><tr><th>Produto (XML)</th><th>Qtd/Un</th><th>Custo</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-import-itens"></tbody>
                 </table>
             </div>
             <div class="modal-botoes">
-                <button type="button" class="btn-cancelar" id="btn-fechar-modal-cliente">Cancelar</button>
+                <button type="button" class="btn-cancelar" id="btn-fechar-import-xml">Fechar</button>
             </div>
         </div>
     </div>
 
-    <div id="modal-busca-produto" class="modal-fundo hidden">
-        <div class="modal" style="max-width: 500px;">
-            <h2>Selecionar Produto</h2>
-            <div class="search-container">
-                <input type="text" id="input-pesquisa-modal-produto" placeholder="Digite o nome do produto...">
-                <button type="button" id="btn-executar-busca-produto">Buscar</button>
-            </div>
-            <div class="tabela-responsiva" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
-                <table id="tabela-resultados-produto">
-                    <thead><tr><th>Produto</th><th>Preço</th><th>Ação</th></tr></thead>
-                    <tbody id="tbody-modal-produto"></tbody>
-                </table>
-            </div>
-            <div class="modal-botoes">
-                <button type="button" class="btn-cancelar" id="btn-fechar-modal-produto">Cancelar</button>
-            </div>
-        </div>
-    </div>
-    
     <div id="modal-busca-mercadoria" class="modal-fundo hidden">
         <div class="modal" style="max-width: 500px;">
             <h2>Selecionar Material</h2>
@@ -751,5 +715,160 @@
             </div>
         </div>
     </div>
+
+    <div id="modal-busca-cliente" class="modal-fundo hidden">
+        <div class="modal" style="max-width: 600px;">
+            <h2>Selecionar Cliente</h2>
+            <div class="search-container">
+                <input type="text" id="input-pesquisa-modal-cliente" placeholder="Digite nome ou CPF...">
+                <button type="button" id="btn-executar-busca-cliente">Buscar</button>
+            </div>
+            <div class="tabela-responsiva" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                <table style="width:100%">
+                    <thead><tr><th>Nome</th><th>CPF</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-modal-cliente"></tbody>
+                </table>
+            </div>
+            <div class="modal-botoes">
+                <button type="button" class="btn-cancelar" id="btn-fechar-modal-cliente">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-busca-produto" class="modal-fundo hidden">
+        <div class="modal" style="max-width: 600px;">
+            <h2>Selecionar Produto</h2>
+            <div class="search-container">
+                <input type="text" id="input-pesquisa-modal-produto" placeholder="Digite o nome do produto...">
+                <button type="button" id="btn-executar-busca-produto">Buscar</button>
+            </div>
+            <div class="tabela-responsiva" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                <table style="width:100%">
+                    <thead><tr><th>Produto</th><th>Preço</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-modal-produto"></tbody>
+                </table>
+            </div>
+            <div class="modal-botoes">
+                <button type="button" class="btn-cancelar" id="btn-fechar-modal-produto">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="area-recibo" class="hidden-screen">
+        <div class="recibo-container">
+            <div class="recibo-header">
+                <img src="img/logo.jpg" alt="Logo" class="recibo-logo">
+                <div class="recibo-empresa">
+                    <h2 id="print-empresa-nome">NOME DA EMPRESA</h2>
+                    <p id="print-empresa-doc">CNPJ: ...</p>
+                    <p id="print-empresa-end">Endereço...</p>
+                    <p id="print-empresa-tel">Tel: ...</p>
+                </div>
+            </div>
+            <hr class="recibo-divisor">
+            <h1 class="recibo-titulo">RECIBO DE PAGAMENTO</h1>
+            <div class="recibo-corpo">
+                <p>Recebemos de: <strong><span id="recibo-cliente-nome">CLIENTE</span></strong></p>
+                <p>A importância de: <strong>R$ <span id="recibo-valor">0,00</span></strong></p>
+                <p>Forma de Pagamento: <span id="recibo-forma">...</span></p>
+                <p>Referente à entrada/parcela do <strong>Pedido #<span id="recibo-pedido-id">000</span></strong>.</p>
+            </div>
+            <div class="recibo-detalhes">
+                <h3>Resumo do Pedido</h3>
+                <table class="recibo-tabela-itens">
+                    <thead><tr><th>Item / Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th></tr></thead>
+                    <tbody id="recibo-tabela-body"></tbody>
+                    <tfoot><tr><td colspan="3" style="text-align: right; font-weight: bold;">TOTAL DO PEDIDO:</td><td id="recibo-total-pedido">R$ 0,00</td></tr></tfoot>
+                </table>
+            </div>
+            <div class="recibo-data-local"><p>Jaraguá do Sul/SC, <span id="recibo-data-extenso">Data</span></p></div>
+            <div class="recibo-assinatura">
+                <div class="linha-assinatura"></div>
+                <p id="print-empresa-dono">Assinatura</p>
+                <p style="font-size: 0.8rem;">Gratidão Arte em Porcelanato</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="area-orcamento" class="hidden-screen">
+        <div class="proposta-container">
+            
+            <header class="proposta-header">
+                <div class="header-logo">
+                    <img src="img/logo.jpg" alt="Logo">
+                </div>
+                <div class="header-info">
+                    <h2 id="orc-empresa-nome">NOME DA EMPRESA</h2>
+                    <p id="orc-empresa-end">Endereço Completo da Empresa</p>
+                    <p><span id="orc-empresa-doc">CNPJ</span> • <span id="orc-empresa-tel">Contato</span></p>
+                </div>
+            </header>
+
+            <div class="info-bar">
+                <div class="info-left">
+                    <h1>PROPOSTA COMERCIAL Nº <span id="orc-numero">000</span></h1>
+                </div>
+                <div class="info-right">
+                    <div>Emissão: <strong id="orc-data-emissao">...</strong></div>
+                    <div>Validade: <strong id="orc-data-validade">...</strong></div>
+                </div>
+            </div>
+
+            <div class="box-solid">
+                <div class="box-header">DADOS DO CLIENTE</div>
+                <div class="box-content">
+                    <h3 id="orc-cliente-nome">Nome do Cliente</h3>
+                    <p id="orc-cliente-tel">Telefone/Contato</p>
+                </div>
+            </div>
+
+            <p class="intro-text">
+                Apresentamos abaixo a proposta técnica e comercial para execução dos serviços de porcelanataria, conforme especificações solicitadas.
+            </p>
+
+            <div class="tabela-container">
+                <table class="tabela-tecnica">
+                    <thead>
+                        <tr>
+                            <th style="width: 45%;">DESCRIÇÃO / ITEM</th>
+                            <th style="text-align: center;">MEDIDAS</th>
+                            <th style="text-align: center; width: 8%;">QTD</th>
+                            <th style="text-align: right; width: 15%;">UNITÁRIO</th>
+                            <th style="text-align: right; width: 15%;">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orc-tabela-itens">
+                        </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="total-label">VALOR TOTAL DO INVESTIMENTO</td>
+                            <td class="total-value" id="orc-total-geral">R$ 0,00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="box-solid" style="margin-top: 20px;">
+                <div class="box-header">OBSERVAÇÕES E CONDIÇÕES DE PAGAMENTO</div>
+                <div class="box-content termos-text">
+                    <p id="orc-observacoes">...</p>
+                </div>
+            </div>
+
+            <footer class="footer-ass">
+                <div class="ass-box">
+                    <div class="linha"></div>
+                    <p>DE ACORDO (CLIENTE)</p>
+                </div>
+                <div class="ass-box">
+                    <div class="linha"></div>
+                    <p id="orc-empresa-responsavel">EMPRESA RESPONSÁVEL</p>
+                    <small>Gratidão Arte em Porcelanato</small>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
 </body>
 </html>

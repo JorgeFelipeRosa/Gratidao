@@ -1,4 +1,5 @@
 // js/produto.js
+import { Toast } from './toast.js';
 
 // --- Estilos dos botões da tabela ---
 const estiloBotaoExcluir = `
@@ -10,14 +11,7 @@ const estiloBotaoExcluir = `
     cursor: pointer;
     margin-left: 5px;
 `;
-const estiloBotaoEditar = `
-    background: rgba(245, 197, 24, 0.15); 
-    color: #F5C518; 
-    border: 1px solid #F5C518;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-`;
+// (Estilo editar mantido, mas não usado via JS direto)
 
 // Função interna unificada para carregar menus de opções
 async function carregarMenuOpcoes(supabase, idElemento, nomeTabela, nomeColuna) {
@@ -48,12 +42,9 @@ export function initFormularioProduto(supabase) {
     const formProduto = document.getElementById('formProduto');
     if (!formProduto) return; 
 
-    // --- TRAVA DE SEGURANÇA ---
     if (formProduto.getAttribute('data-init') === 'true') return;
     formProduto.setAttribute('data-init', 'true');
-    // -------------------------
 
-    const mensagemProduto = document.getElementById('mensagemProduto');
     const btnSalvarProduto = document.getElementById('btnSalvarProduto');
 
     formProduto.addEventListener('submit', async function(e) {
@@ -74,16 +65,10 @@ export function initFormularioProduto(supabase) {
         const { error } = await supabase.from('produtos').insert([ dadosProduto ]); 
 
         if (error) {
-            console.error('Erro ao salvar produto:', error);
-            mensagemProduto.style.color = "red";
-            mensagemProduto.innerText = "Erro: ".concat(error.message);
+            Toast.show("Erro ao salvar: " + error.message, 'error');
         } else {
-            mensagemProduto.style.color = "green";
-            mensagemProduto.innerText = "Produto salvo com sucesso!";
+            Toast.show("Produto cadastrado com sucesso!", 'success');
             formProduto.reset(); 
-            setTimeout(() => {
-                mensagemProduto.innerText = "";
-            }, 3000);
         }
         
         btnSalvarProduto.disabled = false;
@@ -91,7 +76,7 @@ export function initFormularioProduto(supabase) {
     });
 }
 
-// --- NOVO: Inicializa a Busca de Produtos ---
+// --- Inicializa a Busca de Produtos ---
 export function initFuncionalidadeBuscaProduto(supabase) {
     const btnBuscar = document.getElementById('btn-busca-produto');
     const btnLimpar = document.getElementById('btn-limpar-busca-produto');
@@ -115,14 +100,13 @@ export function initFuncionalidadeBuscaProduto(supabase) {
     }
 }
 
-// --- CONSULTAR PRODUTOS (COM BUSCA) ---
+// --- CONSULTAR PRODUTOS ---
 export async function carregarProdutos(supabase, termoBusca = null) {
     const tbody = document.getElementById('corpoTabelaProdutos');
     if (!tbody) return; 
 
     tbody.innerHTML = '<tr><td colspan="4">Buscando...</td></tr>';
 
-    // 1. Busca TODOS os produtos ativos
     const { data: produtos, error } = await supabase
         .from('produtos')
         .select(`
@@ -135,18 +119,15 @@ export async function carregarProdutos(supabase, termoBusca = null) {
         .order('nome_produto', { ascending: true });
 
     if (error) {
-        console.error('Erro ao buscar produtos:', error);
         tbody.innerHTML = `<tr><td colspan="4">Erro ao carregar: ${error.message}</td></tr>`;
         return;
     }
 
-    // 2. Filtra no Javascript
     let listaFiltrada = produtos || [];
 
     if (termoBusca && termoBusca.trim() !== '') {
         const termo = termoBusca.toLowerCase().trim();
         listaFiltrada = listaFiltrada.filter(p => {
-            // Busca por Nome
             return p.nome_produto.toLowerCase().includes(termo);
         });
     }
@@ -174,11 +155,9 @@ export async function carregarProdutos(supabase, termoBusca = null) {
         tbody.appendChild(tr);
     });
 
-    // Re-ligar eventos dos botões
     attachProductEvents(supabase);
 }
 
-// Função auxiliar para ligar eventos
 function attachProductEvents(supabase) {
     document.querySelectorAll('.btn-editar').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -193,9 +172,10 @@ function attachProductEvents(supabase) {
                 e.target.disabled = true;
                 const { error } = await supabase.from('produtos').update({ ativo: false }).eq('id', id);
                 if (error) {
-                    alert('Erro: ' + error.message);
+                    Toast.show("Erro: " + error.message, 'error');
                     e.target.disabled = false;
                 } else {
+                    Toast.show("Produto inativado.", 'info');
                     e.target.closest('tr').remove();
                 }
             }
@@ -206,9 +186,7 @@ function attachProductEvents(supabase) {
 // --- MODAL EDIÇÃO ---
 const modalFundo = document.getElementById('modal-fundo');
 const formEditarProduto = document.getElementById('formEditarProduto');
-const mensagemEditarProduto = document.getElementById('mensagemEditarProduto');
 
-// Exportada: Carrega os menus do modal de EDIÇÃO
 export async function carregarOpcoesEditarProduto(supabase) {
     carregarMenuOpcoes(supabase, 'edit-id_categoria_produto', 'categorias_produto', 'nome_categoria');
     carregarMenuOpcoes(supabase, 'edit-id_unidade_medida', 'unidades_medida', 'sigla_medida'); 
@@ -217,10 +195,9 @@ export async function carregarOpcoesEditarProduto(supabase) {
 async function abrirModalEdicao(supabase, id) {
     if (!modalFundo) return;
     formEditarProduto.reset();
-    mensagemEditarProduto.textContent = '';
     
     const { data: produto, error } = await supabase.from('produtos').select('*').eq('id', id).single(); 
-    if (error) return alert('Não foi possível carregar o produto.');
+    if (error) return Toast.show('Erro ao carregar produto.', 'error');
 
     document.getElementById('edit-produto-id').value = produto.id;
     document.getElementById('edit-nome_produto').value = produto.nome_produto;
@@ -236,10 +213,8 @@ document.getElementById('btn-cancelar-edicao')?.addEventListener('click', () => 
 export function initFormularioEditarProduto(supabase) {
     if (!formEditarProduto) return;
 
-    // --- TRAVA DE SEGURANÇA ---
     if (formEditarProduto.getAttribute('data-init') === 'true') return;
     formEditarProduto.setAttribute('data-init', 'true');
-    // -------------------------
 
     formEditarProduto.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -258,13 +233,11 @@ export function initFormularioEditarProduto(supabase) {
         const { error } = await supabase.from('produtos').update(dadosAtualizados).eq('id', idProduto); 
 
         if (error) {
-            mensagemEditarProduto.style.color = "red";
-            mensagemEditarProduto.innerText = "Erro: " + error.message;
+            Toast.show("Erro: " + error.message, 'error');
         } else {
-            mensagemEditarProduto.style.color = "green";
-            mensagemEditarProduto.innerText = "Produto atualizado!";
+            Toast.show("Produto atualizado!", 'success');
             carregarProdutos(supabase);
-            setTimeout(() => modalFundo.classList.add('hidden'), 2000);
+            setTimeout(() => modalFundo.classList.add('hidden'), 1500);
         }
         btnSalvarEdicao.disabled = false; btnSalvarEdicao.innerText = 'Salvar Alterações';
     });

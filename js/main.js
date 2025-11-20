@@ -40,7 +40,7 @@ import {
     carregarMercadorias,
     carregarOpcoesEditarMercadoria,
     initFormularioEditarMercadoria,
-    initFuncionalidadeBuscaMercadoria // <--- IMPORTADO
+    initFuncionalidadeBuscaMercadoria
 } from './mercadoria.js';
 import {
     carregarOpcoesAdmin,
@@ -50,12 +50,18 @@ import {
     carregarConfiguracoes, 
     initFormularioConfig 
 } from './config.js';
+import { carregarDashboard } from './dashboard.js'; // Import do Dashboard
+import { carregarKanban } from './kanban.js';       // Import do Kanban
 
 
 // 1. CONFIGURAÇÃO
 const SUPABASE_URL = 'https://czmtvshqkdxigfyrfpmj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bXR2c2hxa2R4aWdmeXJmcG1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4Mzk1MTksImV4cCI6MjA3ODQxNTUxOX0.dshOP4UhRJbG0CRt4N3mIB89Eq1ERmEyD7hMghktQb8'; 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- IMPORTANTE: Torna o supabase acessível globalmente para o Kanban (window.moverPedido) ---
+window.supabase = supabase; 
+// -------------------------------------------------------------------------------------------
 
 // 2. GLOBAIS
 const loginContainer = document.getElementById('container-login');
@@ -140,6 +146,11 @@ function iniciarApp(user) {
         if (telaAlvo) {
             telaAlvo.classList.add('ativa');
             
+            // --- CARREGAMENTOS DE CADA TELA ---
+
+            if (idTela === 'tela-home') carregarDashboard(supabase);
+            if (idTela === 'tela-kanban') carregarKanban(supabase); // <--- KANBAN AQUI
+
             if (idTela === 'tela-cadastro-cliente') carregarOpcoesCliente(supabase);
             
             if (idTela === 'tela-consulta-clientes') {
@@ -196,7 +207,7 @@ function iniciarApp(user) {
     });
     
     if(menuItens.length > 0) menuItens[0].classList.add('item-ativo');
-    mostrarTela('tela-home');
+    mostrarTela('tela-home'); // Inicia no Dashboard
 
     // Ligar formulários
     initFormularioCliente(supabase);
@@ -214,11 +225,51 @@ function iniciarApp(user) {
     initFormularioConfig(supabase);
     
     // --- Ligar Buscas ---
-    initFuncionalidadeBusca(supabase);        // Pedidos
-    initFuncionalidadeBuscaCliente(supabase); // Clientes
-    initFuncionalidadeBuscaOrcamento(supabase); // Orçamentos
-    initFuncionalidadeBuscaMercadoria(supabase); // Mercadorias (NOVO)
-    initFuncionalidadeBuscaProduto(supabase); // Produtos
+    initFuncionalidadeBusca(supabase);        
+    initFuncionalidadeBuscaCliente(supabase); 
+    initFuncionalidadeBuscaOrcamento(supabase); 
+    initFuncionalidadeBuscaMercadoria(supabase); 
+    initFuncionalidadeBuscaProduto(supabase);
+
+    // --- Evento Especial do Kanban (Recarregar ao Mover) ---
+    document.addEventListener('reloadKanban', () => {
+        if(document.getElementById('tela-kanban').classList.contains('ativa')){
+            carregarKanban(supabase);
+        }
+    });
+// --- LÓGICA DO TEMA (DARK / LIGHT) ---
+    const btnTema = document.getElementById('btn-tema-toggle');
+    const body = document.body;
+    const iconTema = btnTema.querySelector('i');
+    const textTema = btnTema.querySelector('span');
+
+    // 1. Verifica se já tem preferência salva
+    const temaSalvo = localStorage.getItem('temaPreferido');
+    if (temaSalvo === 'light') {
+        body.classList.add('light-mode');
+        iconTema.className = 'fa-solid fa-moon'; // Muda ícone para Lua
+        textTema.textContent = 'Modo Escuro';
+    }
+
+    // 2. Evento de Clique
+    if (btnTema) {
+        btnTema.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                // Ativou Light
+                localStorage.setItem('temaPreferido', 'light');
+                iconTema.className = 'fa-solid fa-moon';
+                textTema.textContent = 'Modo Escuro';
+            } else {
+                // Voltou pro Dark
+                localStorage.setItem('temaPreferido', 'dark');
+                iconTema.className = 'fa-solid fa-sun';
+                textTema.textContent = 'Modo Claro';
+            }
+        });
+    }
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {

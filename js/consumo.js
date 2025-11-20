@@ -1,4 +1,5 @@
 ﻿// js/consumo.js
+import { Toast } from './toast.js';
 
 const estiloBotaoSelecionar = `
     background: #04D361;
@@ -27,9 +28,10 @@ export async function carregarOpcoesConsumo(supabase) {
     const hiddenId = document.getElementById('hidden-id-mercadoria');
     const inputCusto = document.getElementById('consumo-custo');
     
-    // 1. Carregar Itens de Pedido (Mantido igual)
+    // 1. Carregar Itens de Pedido (Produção)
     if (selectItemPedido) {
-        const STATUS_PRODUCAO = [1, 2];
+        // Status: Em Produção (2) e Pendente (1) - Ajuste conforme seus IDs
+        const STATUS_PRODUCAO = [1, 2, 7];
         try {
             const { data: itens, error: erroItens } = await supabase
                 .from('pedidos_item')
@@ -40,7 +42,7 @@ export async function carregarOpcoesConsumo(supabase) {
                 selectItemPedido.innerHTML = `<option>Erro ao carregar</option>`;
             } else {
                 selectItemPedido.innerHTML = `<option value="">Selecione o item a ser produzido</option>`;
-                if (itens.length === 0) {
+                if (!itens || itens.length === 0) {
                     selectItemPedido.innerHTML = `<option value="">Nenhum pedido em produção</option>`;
                 } else {
                     itens.forEach(item => {
@@ -54,14 +56,14 @@ export async function carregarOpcoesConsumo(supabase) {
 
     // 2. LÓGICA DO MODAL (Abrir/Fechar)
     if (btnAbrir) {
-        btnAbrir.addEventListener('click', () => {
+        btnAbrir.onclick = () => {
             modalMercadoria.classList.remove('hidden');
-            tbodyModal.innerHTML = ''; // Limpa busca anterior
+            tbodyModal.innerHTML = ''; 
             inputBuscaModal.value = '';
             inputBuscaModal.focus();
-        });
+        };
     }
-    if (btnFechar) btnFechar.addEventListener('click', () => modalMercadoria.classList.add('hidden'));
+    if (btnFechar) btnFechar.onclick = () => modalMercadoria.classList.add('hidden');
 
     // 3. LÓGICA DE BUSCA NO BANCO
     async function buscarMateriais() {
@@ -82,7 +84,7 @@ export async function carregarOpcoesConsumo(supabase) {
         }
         
         tbodyModal.innerHTML = '';
-        if (data.length === 0) {
+        if (!data || data.length === 0) {
             tbodyModal.innerHTML = '<tr><td colspan="3">Nenhum material encontrado.</td></tr>';
             return;
         }
@@ -107,7 +109,7 @@ export async function carregarOpcoesConsumo(supabase) {
 
         // Liga os botões "Usar"
         document.querySelectorAll('.btn-selecionar-material').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.onclick = (e) => {
                 const id = e.target.getAttribute('data-id');
                 const nome = e.target.getAttribute('data-nome');
                 const custo = parseFloat(e.target.getAttribute('data-custo'));
@@ -115,16 +117,16 @@ export async function carregarOpcoesConsumo(supabase) {
                 // PREENCHE O FORMULÁRIO PRINCIPAL
                 displayMercadoria.value = nome;
                 hiddenId.value = id;
-                inputCusto.value = custo.toFixed(2); // Auto-preenche preço
+                inputCusto.value = custo.toFixed(2); 
                 
-                modalMercadoria.classList.add('hidden'); // Fecha modal
-            });
+                modalMercadoria.classList.add('hidden'); 
+            };
         });
     }
 
     if (btnBuscar) {
-        btnBuscar.addEventListener('click', buscarMateriais);
-        inputBuscaModal.addEventListener('keyup', (e) => { if(e.key === 'Enter') buscarMateriais(); });
+        btnBuscar.onclick = buscarMateriais;
+        inputBuscaModal.onkeyup = (e) => { if(e.key === 'Enter') buscarMateriais(); };
     }
 }
 
@@ -133,24 +135,21 @@ export function initFormularioConsumo(supabase) {
     const formConsumo = document.getElementById('formConsumo');
     if (!formConsumo) return;
 
-    // Trava de Segurança
     if (formConsumo.getAttribute('data-init') === 'true') return;
     formConsumo.setAttribute('data-init', 'true');
 
     const btnSalvar = document.getElementById('btnSalvarConsumo');
-    const msgConsumo = document.getElementById('mensagemConsumo');
+    // REMOVIDO: const msgConsumo = ... (Causava o erro)
 
     formConsumo.addEventListener('submit', async (e) => {
         e.preventDefault();
         btnSalvar.disabled = true;
         btnSalvar.innerText = "Salvando...";
-        msgConsumo.textContent = '';
         
         try {
             const formData = new FormData(formConsumo);
             const dadosForm = Object.fromEntries(formData.entries());
             
-            // Validação: O campo oculto TEM que ter o ID
             const idMercadoria = document.getElementById('hidden-id-mercadoria').value;
             if (!idMercadoria) {
                 throw new Error("Selecione uma Matéria-Prima usando a busca (lupa).");
@@ -173,20 +172,17 @@ export function initFormularioConsumo(supabase) {
 
             if (error) throw error;
             
-            msgConsumo.style.color = 'green';
-            msgConsumo.textContent = 'Consumo registrado com sucesso!';
+            // SUCESSO
+            Toast.show('Consumo registrado com sucesso!', 'success');
             
             // Reset
             formConsumo.reset();
             document.getElementById('display-mercadoria-consumo').value = "";
             document.getElementById('hidden-id-mercadoria').value = "";
-            
-            setTimeout(() => { msgConsumo.textContent = ''; }, 3000);
 
         } catch (error) {
             console.error('Erro ao salvar consumo:', error);
-            msgConsumo.style.color = 'red';
-            msgConsumo.textContent = error.message;
+            Toast.show(error.message, 'error');
         } finally {
             btnSalvar.disabled = false;
             btnSalvar.innerText = "Salvar Consumo";

@@ -149,9 +149,17 @@ body {
 .navegacao li.item-ativo i { color: var(--gold-primary); }
 
 .nav-bottom {
-    margin-top: auto;
-    padding-top: 15px;
+    margin-top: auto;       /* Empurra para o final da tela */
+    padding-top: 20px;      /* Mais espaço interno acima */
+    margin-top: 20px;       /* Garante afastamento mínimo da lista de cima */
     border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;             
+}
+
+.navegacao > ul:first-of-type {
+    margin-bottom: 10px;
 }
 
 #btn-logout {
@@ -292,35 +300,68 @@ button {
 button:hover { background: var(--gold-hover); transform: translateY(-1px); }
 button:active { transform: translateY(1px); }
 
-/* Padrão de Botões de Ação (Pequenos) */
+/* Botão base */
 .btn-acao {
     padding: 6px 12px;
-    font-size: 0.75rem;
+    font-size: 0.75rem; /* Levemente menor para caber melhor */
     border-radius: 4px;
     border: 1px solid transparent;
     font-weight: 700;
     cursor: pointer;
     margin-right: 5px;
     text-transform: uppercase;
+    transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 60px;
-    width: auto; /* Não ocupa 100% na tabela */
 }
 
-.btn-warning { background: rgba(245, 197, 24, 0.1); color: var(--gold-primary); border-color: var(--gold-primary); }
-.btn-warning:hover { background: var(--gold-primary); color: #121214; }
+/* --- VARIAÇÕES DE CORES --- */
 
-.btn-danger { background: rgba(226, 88, 88, 0.1); color: var(--danger); border-color: var(--danger); }
-.btn-danger:hover { background: var(--danger); color: white; }
+/* 1. EDITAR / STATUS / ALTERAR (Amarelo) */
+.btn-warning {
+    background: rgba(245, 197, 24, 0.1);
+    color: #F5C518;
+    border-color: #F5C518;
+}
+.btn-warning:hover {
+    background: #F5C518;
+    color: #121214;
+}
 
-.btn-success { background: rgba(4, 211, 97, 0.1); color: var(--success); border-color: var(--success); }
-.btn-success:hover { background: var(--success); color: #121214; }
+/* 2. EXCLUIR / CANCELAR (Vermelho) */
+.btn-danger {
+    background: rgba(226, 88, 88, 0.1);
+    color: #E25858;
+    border-color: #E25858;
+}
+.btn-danger:hover {
+    background: #E25858;
+    color: white;
+}
 
-.btn-info { background: rgba(41, 182, 246, 0.1); color: var(--info); border-color: var(--info); }
-.btn-info:hover { background: var(--info); color: #121214; }
+/* 3. PAGAR / APROVAR / SALVAR (Verde) */
+.btn-success {
+    background: rgba(4, 211, 97, 0.1);
+    color: #04D361;
+    border-color: #04D361;
+}
+.btn-success:hover {
+    background: #04D361;
+    color: #121214;
+}
 
+/* 4. VER / DETALHES (Azul) */
+.btn-info {
+    background: rgba(41, 182, 246, 0.1);
+    color: #29B6F6;
+    border-color: #29B6F6;
+}
+.btn-info:hover {
+    background: #29B6F6;
+    color: #121214;
+}
 .btn-cancelar { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); width: auto; }
 .btn-cancelar:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
 
@@ -477,8 +518,25 @@ legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
     font-style: italic;
 }
 
+/* --- INPUT GROUP (Campo + Botão ao lado) --- */
+.input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.input-group input {
+    flex: 1; /* Ocupa todo o espaço sobrando */
+    background-color: #2a2a30; /* Um pouco mais claro para indicar leitura */
+    cursor: pointer;
+}
+.input-group button {
+    width: auto;
+    padding: 12px 15px;
+    margin: 0; /* Remove margem padrão */
+}
+
 /* ======================================== */
-/* RESPONSIVIDADE (MOBILE - CORREÇÃO FINAL) */
+/* RESPONSIVIDADE (MOBILE)                  */
 /* ======================================== */
 @media (max-width: 800px) {
     .navegacao { transform: translateX(-100%); width: 85%; }
@@ -500,62 +558,512 @@ legend { color: var(--gold-primary); padding: 0 10px; font-weight: bold; }
     .search-container input { width: 100%; flex: 1 1 100%; margin-bottom: 5px; }
     .search-container button { flex: 1; justify-content: center; }
 }
-
 /* ======================================== */
-/* ESTILOS DE IMPRESSÃO (RECIBO)            */
+/* ESTILOS DE IMPRESSÃO (LIMPEZA TOTAL)     */
 /* ======================================== */
 .hidden-screen { display: none !important; }
 
 @media print {
-    body, html { background: #FFFFFF !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; height: 100%; width: 100%; }
-    
-    #container-app, #container-login, .navegacao, .mobile-header, .modal-fundo {
-        display: none !important; height: 0 !important; width: 0 !important; overflow: hidden !important;
+    @page { size: A4; margin: 0mm; }
+
+    /* RESET GERAL: Força tudo para BRANCO e PRETO */
+    *, *::before, *::after, body, html, #area-orcamento, #area-recibo {
+        background-color: #FFFFFF !important; /* Fundo BRANCO puro */
+        color: #000000 !important;            /* Texto PRETO puro */
+        box-shadow: none !important;
+        text-shadow: none !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Esconde interface do sistema */
+    #container-app, #container-login, .navegacao, .mobile-header, .modal-fundo, #toast-container {
+        display: none !important; height: 0; overflow: hidden;
+    }
+
+    /* CONTROLE DE VISIBILIDADE (Qual documento mostrar) */
+    #area-orcamento, #area-recibo { display: none !important; }
+
+    body.print-mode-orcamento #area-orcamento,
+    body.print-mode-recibo #area-recibo {
+        display: block !important;
+        width: 100%; height: 100%;
+        position: relative; visibility: visible !important;
+        z-index: 9999; background: white !important;
     }
     
-    #area-recibo {
-        display: block !important;
-        position: absolute !important; left: 0 !important; top: 0 !important;
-        width: 100% !important; margin: 0 !important; padding: 20px !important;
-        background: white !important; color: black !important; z-index: 9999 !important;
+    /* Garante que o conteúdo interno esteja visível */
+    body.print-mode-orcamento #area-orcamento *,
+    body.print-mode-recibo #area-recibo * {
         visibility: visible !important;
     }
-    #area-recibo * { visibility: visible !important; color: black !important; }
 
-    .recibo-container { border: 2px solid #000; padding: 30px; font-family: 'Times New Roman', serif; max-width: 800px; margin: 0 auto; }
-    .recibo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #000; padding-bottom: 20px; }
-    .recibo-logo { width: 120px; max-height: 100px; object-fit: contain; filter: grayscale(100%); }
-    .recibo-empresa { text-align: right; font-size: 0.9rem; line-height: 1.4; }
-    .recibo-empresa h2 { font-size: 1.2rem; margin: 0 0 5px 0; }
-    .recibo-empresa p { margin: 0; }
-    .recibo-titulo { text-align: center; margin: 30px 0; font-size: 1.8rem; text-transform: uppercase; text-decoration: underline; }
-    .recibo-corpo { font-size: 1.1rem; line-height: 1.8; margin-bottom: 30px; }
+    /* ==================== ESTILOS DO ORÇAMENTO/PROPOSTA ==================== */
+    .proposta-container {
+        width: 210mm; min-height: 297mm;
+        padding: 15mm; margin: 0 auto;
+        background: white !important;
+    }
+    .proposta-header {
+        display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;
+    }
+    .header-logo img { height: 70px; object-fit: contain; background: white !important; } /* Logo em fundo branco */
+    .header-info { text-align: right; }
+    .header-info h2 { margin: 0; font-size: 14pt; text-transform: uppercase; font-weight: 800; }
     
-    .recibo-detalhes { margin: 20px 0 40px 0; border: 1px solid #000; }
-    .recibo-detalhes h3 { background: #eee; margin: 0; padding: 5px 10px; border-bottom: 1px solid #000; font-size: 0.9rem; -webkit-print-color-adjust: exact; }
-    .recibo-tabela-itens { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .recibo-tabela-itens th { border-bottom: 1px solid #000; padding: 5px; text-align: left; }
-    .recibo-tabela-itens td { border-bottom: 1px solid #ccc; padding: 5px; }
-    .recibo-tabela-itens tfoot td { border-top: 2px solid #000; font-weight: bold; padding-top: 10px; }
+    .info-bar {
+        display: flex; justify-content: space-between; align-items: center;
+        border: 1px solid #000; padding: 8px 15px; margin-bottom: 20px;
+        background: #f5f5f5 !important; /* Cinza claro só para diferenciar a barra */
+    }
+    .info-left h1 {
+        margin: 0; font-size: 14pt; text-transform: uppercase; font-weight: 800;
+        color: #000 !important; /* TÍTULO PRETO AGORA */
+    }
+    
+    .box-solid { border: 1px solid #000; margin-bottom: 20px; }
+    .box-header {
+        background: #f5f5f5 !important; border-bottom: 1px solid #000;
+        padding: 5px 10px; font-weight: 700; font-size: 9pt;
+    }
+    .box-content { padding: 10px; }
+    
+    .tabela-tecnica { width: 100%; border-collapse: collapse; font-size: 9pt; }
+    .tabela-tecnica th {
+        background: #000 !important; color: #fff !important; /* Cabeçalho preto com texto branco para contraste */
+        padding: 8px; border: 1px solid #000; text-transform: uppercase;
+    }
+    .tabela-tecnica td { border: 1px solid #000; padding: 8px; }
+    
+    .total-label { background: #f5f5f5 !important; font-weight: bold; text-align: right; padding-right: 10px; border: 1px solid #000;}
+    .total-value { background: #fff !important; font-weight: 800; font-size: 12pt; border: 1px solid #000; text-align: right; }
 
-    .recibo-data-local { text-align: right; margin-bottom: 80px; font-size: 1.1rem; }
-    .recibo-assinatura { text-align: center; page-break-inside: avoid; }
-    .linha-assinatura { border-top: 1px solid #000; width: 400px; margin: 0 auto 10px auto; }
+    .footer-ass { margin-top: 30mm; display: flex; justify-content: space-between; }
+    .ass-box { width: 40%; text-align: center; }
+    .linha { border-top: 1px solid #000; margin-bottom: 5px; }
+
+    /* ==================== ESTILOS DO RECIBO (CORRIGIDO) ==================== */
+    .recibo-container {
+        width: 190mm; /* Um pouco menor que A4 */
+        margin: 20mm auto;
+        border: 2px solid #000;
+        padding: 15mm;
+        background-color: #FFFFFF !important; /* FORÇA FUNDO BRANCO */
+        font-family: 'Times New Roman', serif;
+        color: #000 !important;
+    }
+    
+    /* Garante que tudo dentro do recibo tenha fundo transparente (para mostrar o branco do container) */
+    .recibo-container * { background-color: transparent !important; }
+
+    .recibo-header {
+        display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 20px;
+    }
+    /* A logo deve ficar boa agora com o fundo branco atrás dela */
+    .recibo-logo { height: 60px; width: auto; object-fit: contain; }
+    
+    .recibo-empresa { text-align: right; }
+    .recibo-empresa h2 { margin: 0; font-size: 12pt; }
+    .recibo-empresa p { margin: 2px 0; font-size: 10pt; }
+
+    .recibo-titulo {
+        text-align: center; font-size: 18pt; text-decoration: underline;
+        margin: 30px 0; font-weight: bold; text-transform: uppercase;
+    }
+    
+    .recibo-corpo { font-size: 12pt; line-height: 1.8; margin-bottom: 30px; }
+    .recibo-corpo strong { font-weight: bold; }
+
+    .recibo-detalhes {
+        border: 1px solid #000; padding: 10px; margin-top: 20px;
+    }
+    .recibo-detalhes h3 { margin: 0 0 10px 0; font-size: 11pt; border-bottom: 1px solid #000; display: inline-block; }
+    
+    .recibo-tabela-itens { width: 100%; border-collapse: collapse; font-size: 10pt; }
+    .recibo-tabela-itens th, .recibo-tabela-itens td {
+        border: 1px solid #000; padding: 5px 8px; text-align: left;
+    }
+    .recibo-tabela-itens th { background-color: #f5f5f5 !important; font-weight: bold; }
+    
+    .recibo-data-local { margin-top: 40px; text-align: right; font-size: 12pt; }
+    
+    .recibo-assinatura { margin-top: 60px; text-align: center; }
+    .linha-assinatura { border-top: 1px solid #000; width: 60%; margin: 0 auto 10px auto; }
 }
 
-/* --- INPUT GROUP (Campo + Botão ao lado) --- */
-.input-group {
+/* ======================================== */
+/* DASHBOARD & HOME                         */
+/* ======================================== */
+.dashboard-header {
+    margin-bottom: 25px;
+    border-left: 4px solid var(--gold-primary);
+    padding-left: 15px;
+}
+.dashboard-header h2 { margin: 0; border: none; padding: 0; }
+.data-hoje { margin: 5px 0 0 0; color: var(--text-secondary); font-size: 0.9rem; }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.kpi-card {
+    background: linear-gradient(145deg, #25252a, #1e1e22);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
     display: flex;
-    gap: 10px;
     align-items: center;
-}
-.input-group input {
-    flex: 1; /* Ocupa todo o espaço sobrando */
-    background-color: #2a2a30; /* Um pouco mais claro para indicar leitura */
+    gap: 20px;
+    transition: transform 0.2s, border-color 0.2s;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
-.input-group button {
-    width: auto;
-    padding: 12px 15px;
-    margin: 0; /* Remove margem padrão */
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold-primary);
+}
+
+.kpi-card.destaque {
+    border: 1px solid rgba(245, 197, 24, 0.3);
+    background: radial-gradient(circle at top right, rgba(245, 197, 24, 0.05), #202024);
+}
+
+.kpi-icon {
+    width: 50px; height: 50px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--gold-primary);
+}
+
+.kpi-info span {
+    font-size: 0.85rem; text-transform: uppercase;
+    color: var(--text-secondary); letter-spacing: 0.5px;
+}
+
+.kpi-info h3 {
+    margin: 5px 0 0 0;
+    font-size: 1.8rem; color: var(--text-primary);
+}
+
+/* ATALHOS RÁPIDOS */
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.btn-shortcut {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 20px 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-shortcut i { font-size: 1.5rem; color: var(--gold-primary); margin-bottom: 5px; }
+
+.btn-shortcut:hover {
+    background: #27272a;
+    border-color: var(--gold-primary);
+    transform: translateY(-2px);
+}
+
+/* ======================================== */
+/* TOAST NOTIFICATIONS (FLUTUANTES)         */
+/* ======================================== */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999; /* Acima de tudo */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: #202024; /* Fundo Dark */
+    color: #E1E1E6;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 16px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 5px solid #444;
+    animation: slideIn 0.3s ease-out forwards;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Cores por Tipo */
+.toast-success { border-left-color: #04D361; } /* Verde */
+.toast-success .toast-icon { color: #04D361; }
+
+.toast-error { border-left-color: #E25858; } /* Vermelho */
+.toast-error .toast-icon { color: #E25858; }
+
+.toast-warning { border-left-color: #F5C518; } /* Amarelo (Gold) */
+.toast-warning .toast-icon { color: #F5C518; }
+
+.toast-info { border-left-color: #29B6F6; } /* Azul */
+.toast-info .toast-icon { color: #29B6F6; }
+
+.toast-message { flex: 1; font-weight: 500; }
+
+.toast-close {
+    cursor: pointer;
+    color: #71717a;
+    transition: color 0.2s;
+}
+.toast-close:hover { color: #E1E1E6; }
+
+/* Animações */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Mobile: Centralizar no topo */
+@media (max-width: 600px) {
+    #toast-container {
+        right: 5%;
+        left: 5%; /* Ocupa a largura */
+        width: 90%;
+        top: 10px;
+    }
+    .toast { min-width: auto; width: 100%; }
+}
+/* --- KANBAN BOARD --- */
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+.kanban-column {
+    background: #18181b;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.k-col-header {
+    padding: 15px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.k-todo { background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border-top: 3px solid var(--text-secondary); }
+.k-doing { background: rgba(245, 197, 24, 0.1); color: var(--gold-primary); border-top: 3px solid var(--gold-primary); }
+.k-done { background: rgba(4, 211, 97, 0.1); color: var(--success); border-top: 3px solid var(--success); }
+
+.k-col-body {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+/* CARDS DO KANBAN */
+.kanban-card {
+    background: #27272a;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.kanban-card:hover { transform: translateY(-2px); border-color: var(--gold-primary); }
+
+.k-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: #71717a; margin-bottom: 5px; }
+.k-id { font-weight: bold; color: var(--gold-primary); }
+.k-client { margin: 0 0 10px 0; color: #E1E1E6; font-size: 1rem; }
+
+.k-items-list { margin-bottom: 15px; border-left: 2px solid #444; padding-left: 8px; }
+.k-item { font-size: 0.9rem; color: #A8A8B3; margin-bottom: 3px; }
+
+.k-actions { display: flex; gap: 5px; margin-top: auto; }
+.btn-kanban { flex: 1; padding: 8px; font-size: 0.8rem; border-radius: 4px; cursor: pointer; border: none; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+.btn-start { background: var(--gold-primary); color: #121214; }
+.btn-start:hover { background: var(--gold-hover); }
+
+.btn-finish { background: var(--success); color: #121214; }
+.btn-back { background: #333; color: #ccc; flex: 0 0 40px; } /* Botão voltar pequeno */
+
+.k-tag-done { color: var(--success); font-weight: bold; width: 100%; text-align: center; padding: 5px; background: rgba(4,211,97,0.1); border-radius: 4px; }
+
+/* ======================================== */
+/* TEMA CLARO (LIGHT MODE)                  */
+/* ======================================== */
+
+body.light-mode {
+    /* Fundo Geral: Cinza Gelo muito suave */
+    --bg-app: #F0F2F5;
+    
+    /* Painéis/Cards: Branco Puro */
+    --bg-panel: #FFFFFF;
+    
+    /* Inputs: Branco com borda mais evidente */
+    --bg-input: #FFFFFF;
+    
+    /* Bordas: Cinza claro para separar */
+    --border-color: #D1D5DB;
+    
+    /* Textos: Inverte para escuro */
+    --text-primary: #18181b;       /* Quase preto */
+    --text-secondary: #52525b;     /* Cinza chumbo */
+    
+    /* Sombra: Mais suave para o fundo branco */
+    --shadow-card: 0 2px 5px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajustes Específicos para o Modo Claro */
+body.light-mode .navegacao {
+    background: #FFFFFF;
+    border-right: 1px solid var(--border-color);
+}
+
+body.light-mode .navegacao li {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+body.light-mode .navegacao li:hover {
+    background: #F4F4F5; /* Cinza muito leve no hover */
+    color: var(--gold-primary);
+    border-color: var(--border-color);
+}
+
+/* Tabelas no Modo Claro */
+body.light-mode th {
+    background: #F8FAFC; /* Cabeçalho cinza bem clarinho */
+    color: #18181b;
+    border-bottom: 2px solid #E2E8F0;
+}
+
+body.light-mode tr:hover {
+    background: #F1F5F9;
+}
+
+/* Inputs no Modo Claro */
+body.light-mode input, 
+body.light-mode select, 
+body.light-mode textarea {
+    border: 1px solid #CBD5E1; /* Borda mais visível */
+    color: #333;
+}
+
+body.light-mode input:focus, 
+body.light-mode select:focus {
+    border-color: var(--gold-primary);
+    background: #FFF;
+}
+
+/* ======================================== */
+/* CORREÇÕES ESPECÍFICAS DO LIGHT MODE      */
+/* ======================================== */
+
+/* 1. Corrige os Cards do Dashboard (KPIs) */
+body.light-mode .kpi-card {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+body.light-mode .kpi-card.destaque {
+    background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%); /* Amarelo muito suave */
+    border-color: var(--gold-primary);
+}
+body.light-mode .kpi-icon {
+    background: #F3F4F6; /* Cinza claro para o ícone */
+    color: var(--gold-primary);
+}
+body.light-mode .kpi-info h3 {
+    color: #111827; /* Texto preto forte */
+}
+
+/* 2. Corrige os Inputs com Lupa (Grupo de Busca) */
+body.light-mode .input-group input,
+body.light-mode .search-container {
+    background: #FFFFFF !important;
+    border-color: #D1D5DB;
+    color: #111827;
+}
+
+/* 3. Corrige o Kanban (Fundo das Colunas e Cards) */
+body.light-mode .kanban-column {
+    background: #F9FAFB; /* Cinza gelo para a coluna */
+    border-color: #E5E7EB;
+}
+body.light-mode .kanban-card {
+    background: #FFFFFF;
+    border-color: #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+body.light-mode .k-client, 
+body.light-mode .k-id {
+    color: #111827;
+}
+
+/* 4. Corrige Inputs "Readonly" (Área calculada, etc) */
+body.light-mode input[readonly] {
+    background-color: #F3F4F6 !important; /* Cinza claro para indicar leitura */
+    color: #374151 !important;
+}
+
+/* Botão de Upload Personalizado */
+.btn-upload-custom {
+    display: block;
+    background: #27272a;
+    border: 2px dashed var(--text-secondary);
+    color: var(--text-primary);
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.btn-upload-custom:hover {
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
+    background: rgba(245, 197, 24, 0.05);
+}
+
+/* Ajuste na visualização */
+#img-anexo-pedido {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    margin-top: 10px;
 }
